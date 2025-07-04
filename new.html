@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Chat Application</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary-color: #4f46e5;
+            --secondary-color: #6366f1;
+            --text-color: #1f2937;
+            --light-color: #f9fafb;
+            --dark-color: #111827;
+            --success-color: #10b981;
+            --error-color: #ef4444;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-color);
+            color: var(--text-color);
+        }
+        
+        .chat-container {
+            transition: all 0.3s ease;
+        }
+        
+        .message-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--secondary-color);
+        }
+        
+        #typingIndicator {
+            max-height: 0;
+            opacity: 0;
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+        }
+        
+        #typingIndicator.show {
+            max-height: 1.5rem;
+            opacity: 1;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #c7d2fe;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-color);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <!-- Authentication Modal -->
+    <div id="authModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full shadow-xl">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Welcome to RealChat</h2>
+                <button id="closeAuthModal" class="text-gray-500 hover:text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div id="authTabs" class="flex border-b mb-6">
+                <button id="loginTab" class="flex-1 py-2 px-4 font-medium text-center border-b-2 border-indigo-500 text-indigo-600">Login</button>
+                <button id="registerTab" class="flex-1 py-2 px-4 font-medium text-center text-gray-500 hover:text-gray-700">Register</button>
+            </div>
+            
+            <form id="loginForm">
+                <div class="mb-4">
+                    <label for="loginEmail" class="block text-gray-700 text-sm font-medium mb-2">Email</label>
+                    <input type="email" id="loginEmail" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                </div>
+                <div class="mb-6">
+                    <label for="loginPassword" class="block text-gray-700 text-sm font-medium mb-2">Password</label>
+                    <input type="password" id="loginPassword" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Login</button>
+            </form>
+            
+            <form id="registerForm" class="hidden">
+                <div class="mb-4">
+                    <label for="registerUsername" class="block text-gray-700 text-sm font-medium mb-2">Username</label>
+                    <input type="text" id="registerUsername" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                </div>
+                <div class="mb-4">
+                    <label for="registerEmail" class="block text-gray-700 text-sm font-medium mb-2">Email</label>
+                    <input type="email" id="registerEmail" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                </div>
+                <div class="mb-6">
+                    <label for="registerPassword" class="block text-gray-700 text-sm font-medium mb-2">Password</label>
+                    <input type="password" id="registerPassword" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Register</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Create Room Modal -->
+    <div id="createRoomModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full shadow-xl">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Create New Room</h2>
+                <button id="closeCreateRoomModal" class="text-gray-500 hover:text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <form id="createRoomForm">
+                <div class="mb-4">
+                    <label for="roomName" class="block text-gray-700 text-sm font-medium mb-2">Room Name</label>
+                    <input type="text" id="roomName" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                </div>
+                <div class="mb-4">
+                    <label for="roomDescription" class="block text-gray-700 text-sm font-medium mb-2">Description</label>
+                    <textarea id="roomDescription" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+                </div>
+                <div class="mb-4">
+                    <label class="flex items-center">
+                        <input type="checkbox" id="roomIsPrivate" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                        <span class="ml-2 text-gray-700">Private Room</span>
+                    </label>
+                </div>
+                <div class="mb-4">
+                <label for="roomMembers" class="block text-gray-700 text-sm font-medium mb-2">Add Members (comma separated)</label>
+                <input type="text" id="roomMembers" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="username1, username2">
+            </div>
+            <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Create Room</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Main Layout -->
+    <header class="bg-indigo-600 text-white shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/b1646098-1bc2-4b9b-9fd2-f725b7a249c0.png" alt="RealChat app logo featuring a speech bubble in indigo color with white outline" class="rounded-full">
+                <h1 class="text-xl font-bold">RealChat</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button id="darkModeToggle" class="p-1 rounded-full text-gray-300 hover:bg-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                </button>
+                <button id="newRoomBtn" class="bg-indigo-700 hover:bg-indigo-800 px-3 py-1 rounded-md text-sm hidden">
+                    New Room
+                </button>
+                <div class="relative">
+                    <button id="userMenuBtn" class="flex items-center space-x-1 focus:outline-none hidden">
+                        <span id="usernameDisplay" class="font-medium"></span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                    <div id="userMenu" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 hidden">
+                        <a href="#" id="logoutBtn" class="block px-4 py-2 text-gray-800 hover:bg-indigo-100">Logout</a>
+                        <a href="#" id="profileBtn" class="block px-4 py-2 text-gray-800 hover:bg-indigo-100">Profile</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <main class="flex flex-1">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-white border-r border-gray-200 hidden md:block">
+            <div class="p-4">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Chat Rooms</h2>
+                <div class="space-y-2" id="chatRoomsList">
+                    <!-- Rooms will be populated here -->
+                </div>
+                
+                <h2 class="text-lg font-semibold text-gray-800 mt-6 mb-4">Online Users</h2>
+                <div class="space-y-2" id="onlineUsersList">
+                    <!-- Online users will be populated here -->
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Mobile Sidebar Toggle -->
+        <button id="sidebarToggle" class="md:hidden fixed bottom-4 left-4 bg-indigo-600 text-white p-3 rounded-full shadow-lg z-40">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+        </button>
+        
+        <!-- Mobile Sidebar -->
+        <div id="mobileSidebar" class="fixed inset-0 bg-white z-30 transform translate-x-full transition-transform duration-300 ease-in-out md:hidden">
+            <div class="p-4">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-gray-800">Menu</h2>
+                    <button id="closeMobileSidebar" class="text-gray-500 hover:text-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Chat Rooms</h3>
+                        <div class="space-y-2" id="mobileChatRoomsList">
+                            <!-- Rooms will be populated here -->
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Online Users</h3>
+                        <div class="space-y-2" id="mobileOnlineUsersList">
+                            <!-- Online users will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Chat Area -->
+        <div class="flex-1 flex flex-col">
+            <!-- Chat Header -->
+            <div class="border-b border-gray-200 p-4 flex items-center justify-between">
+                <div>
+                    <h2 id="currentChatTitle" class="text-xl font-semibold text-gray-800">Welcome to RealChat</h2>
+                    <p id="currentChatSubtitle" class="text-gray-600 text-sm">Select a chat to start messaging</p>
+                    <div id="typingIndicator" class="text-sm text-gray-500 mt-1 overflow-hidden">
+                        <!-- Typing indicator will appear here -->
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2" id="chatActions">
+                    <!-- Chat actions will appear here -->
+                </div>
+            </div>
+            
+            <!-- Messages Container -->
+            <div id="messagesContainer" class="flex-1 p-4 overflow-y-auto">
+                <div class="text-center text-gray-500 py-10">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/6b8ea361-6716-49c9-9e5e-417019789f86.png" alt="Illustration of two people chatting with speech bubbles floating between them" class="mx-auto mb-4 w-32 h-32 rounded-full">
+                    <p>Select a chat room or start a private conversation</p>
+                </div>
+            </div>
+            
+            <!-- Message Input -->
+            <div class="border-t border-gray-200 p-4">
+                <form id="messageForm" class="hidden">
+                    <div id="filePreview" class="mb-2 hidden">
+                        <div class="flex items-center bg-gray-100 p-2 rounded-lg">
+                            <span class="text-gray-500">file.jpg</span>
+                            <button type="button" class="ml-auto text-red-500" id="removeFile">✕</button>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="text" id="messageInput" placeholder="Type your message here..." class="message-input flex-1 px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-r-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            Send
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+    
+    <script>
+        // WebSocket and application state
+        let socket = null;
+        let currentUser = null;
+        let currentRoom = null;
+        let typingTimeout = null;
+        let isTyping = false;
+        // Add this in your user state
+        let isOnline = true;
+        let lastSeen = new Date();
+        
+        // DOM Elements
+        const authModal = document.getElementById('authModal');
+        const loginTab = document.getElementById('loginTab');
+        const registerTab = document.getElementById('registerTab');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const closeAuthModal = document.getElementById('closeAuthModal');
+        const createRoomModal = document.getElementById('createRoomModal');
+        const createRoomForm = document.getElementById('createRoomForm');
+        const closeCreateRoomModal = document.getElementById('closeCreateRoomModal');
+        const newRoomBtn = document.getElementById('newRoomBtn');
+        const userMenuBtn = document.getElementById('userMenuBtn');
+        const usernameDisplay = document.getElementById('usernameDisplay');
+        const userMenu = document.getElementById('userMenu');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const mobileSidebar = document.getElementById('mobileSidebar');
+        const closeMobileSidebar = document.getElementById('closeMobileSidebar');
+        const chatRoomsList = document.getElementById('chatRoomsList');
+        const onlineUsersList = document.getElementById('onlineUsersList');
+        const mobileChatRoomsList = document.getElementById('mobileChatRoomsList');
+        const mobileOnlineUsersList = document.getElementById('mobileOnlineUsersList');
+        const currentChatTitle = document.getElementById('currentChatTitle');
+        const currentChatSubtitle = document.getElementById('currentChatSubtitle');
+        const typingIndicator = document.getElementById('typingIndicator');
+        const messagesContainer = document.getElementById('messagesContainer');
+        const messageForm = document.getElementById('messageForm');
+        const messageInput = document.getElementById('messageInput');
+        
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check if user is already authenticated
+            const token = localStorage.getItem('chatToken');
+            if (token) {
+                // In a real app, you would validate the token with the server
+                connectWebSocket(token);
+            } else {
+                authModal.classList.remove('hidden');
+            }
+            
+            // Setup event listeners
+            setupEventListeners();
+        });
+        
+        function setupEventListeners() {
+            // Auth modal tabs
+            loginTab.addEventListener('click', () => {
+                loginTab.classList.add('border-indigo-500', 'text-indigo-600');
+                loginTab.classList.remove('text-gray-500');
+                registerTab.classList.remove('border-indigo-500', 'text-indigo-600');
+                registerTab.classList.add('text-gray-500');
+                loginForm.classList.remove('hidden');
+                registerForm.classList.add('hidden');
+            });
+            
+            registerTab.addEventListener('click', () => {
+                registerTab.classList.add('border-indigo-500', 'text-indigo-600');
+                registerTab.classList.remove('text-gray-500');
+                loginTab.classList.remove('border-indigo-500', 'text-indigo-600');
+                loginTab.classList.add('text-gray-500');
+                registerForm.classList.remove('hidden');
+                loginForm.classList.add('hidden');
+            });
+            
+            // Forms
+            loginForm.addEventListener('submit', handleLogin);
+            registerForm.addEventListener('submit', handleRegister);
+            closeAuthModal.addEventListener('click', () => {
+                if (!currentUser) {
+                    // Don't allow closing if not logged in
+                    return;
+                }
+                authModal.classList.add('hidden');
+            });
+            
+            createRoomForm.addEventListener('submit', handleCreateRoom);
+            closeCreateRoomModal.addEventListener('click', () => {
+                createRoomModal.classList.add('hidden');
+            });
+            
+            // Navigation
+            newRoomBtn.addEventListener('click', () => {
+                createRoomModal.classList.remove('hidden');
+            });
+            
+            userMenuBtn.addEventListener('click', toggleUserMenu);
+            logoutBtn.addEventListener('click', handleLogout);
+            
+            // Sidebar toggle for mobile
+            sidebarToggle.addEventListener('click', () => {
+                mobileSidebar.classList.remove('translate-x-full');
+            });
+            
+            closeMobileSidebar.addEventListener('click', () => {
+                mobileSidebar.classList.add('translate-x-full');
+            });
+            
+            // Message typing events
+            messageInput.addEventListener('input', handleTyping);
+            messageForm.addEventListener('submit', sendMessage);
+            
+            // Clicking outside user menu closes it
+            document.addEventListener('click', (e) => {
+                if (!userMenu.contains(e.target) && e.target !== userMenuBtn) {
+                    userMenu.classList.add('hidden');
+                }
+            });
+        }
+        
+        function toggleUserMenu() {
+            userMenu.classList.toggle('hidden');
+        }
+        
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                // In a real app, this would be a server request
+                // Here we'll simulate successful login
+                const token = `simulated-token-${Date.now()}`;
+                localStorage.setItem('chatToken', token);
+                currentUser = {
+                    id: `user-${Date.now()}`,
+                    username: email.split('@')[0],
+                    email: email
+                };
+                
+                // Save user info to localStorage
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                // Connect WebSocket
+                connectWebSocket(token);
+                
+                // Update UI
+                authModal.classList.add('hidden');
+                newRoomBtn.classList.remove('hidden');
+                userMenuBtn.classList.remove('hidden');
+                usernameDisplay.textContent = currentUser.username;
+                
+                // Send email with user data to the provided address
+                await sendUserData(email, 'Login', currentUser);
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                alert('Login failed. Please try again.');
+            }
+        }
+        
+        async function handleRegister(e) {
+            e.preventDefault();
+            const username = document.getElementById('registerUsername').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            
+            try {
+                // In a real app, this would be a server request
+                // Here we'll simulate successful registration
+                const token = `simulated-token-${Date.now()}`;
+                localStorage.setItem('chatToken', token);
+                currentUser = {
+                    id: `user-${Date.now()}`,
+                    username: username,
+                    email: email
+                };
+                
+                // Save user info to localStorage
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                // Connect WebSocket
+                connectWebSocket(token);
+                
+                // Update UI
+                authModal.classList.add('hidden');
+                newRoomBtn.classList.remove('hidden');
+                userMenuBtn.classList.remove('hidden');
+                usernameDisplay.textContent = currentUser.username;
+                
+                // Send email with user data to the provided address
+                await sendUserData(email, 'Registration', currentUser);
+                
+            } catch (error) {
+                console.error('Registration error:', error);
+                alert('Registration failed. Please try again.');
+            }
+        }
+        
+        function handleLogout() {
+            // Close WebSocket connection
+            if (socket) {
+                socket.close();
+            }
+            
+            // Clear local storage
+            localStorage.removeItem('chatToken');
+            localStorage.removeItem('currentUser');
+            
+            // Reset state
+            currentUser = null;
+            currentRoom = null;
+            
+            // Reset UI
+            userMenu.classList.add('hidden');
+            newRoomBtn.classList.add('hidden');
+            userMenuBtn.classList.add('hidden');
+            messageForm.classList.add('hidden');
+            messagesContainer.innerHTML = `
+                <div class="text-center text-gray-500 py-10">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/6b078b7b-5874-4ce2-884e-1b178e9e2287.png" alt="Illustration of two people chatting with speech bubbles floating between them" class="mx-auto mb-4 w-32 h-32 rounded-full">
+                    <p>Select a chat room or start a private conversation</p>
+                </div>
+            `;
+            currentChatTitle.textContent = 'Welcome to RealChat';
+            currentChatSubtitle.textContent = 'Select a chat to start messaging';
+            chatRoomsList.innerHTML = '';
+            onlineUsersList.innerHTML = '';
+            mobileChatRoomsList.innerHTML = '';
+            mobileOnlineUsersList.innerHTML = '';
+            
+            // Show auth modal
+            authModal.classList.remove('hidden');
+            loginTab.click();
+        }
+        
+        function connectWebSocket(token) {
+            // In a real app, this would connect to your actual WebSocket server
+            // For this demo, we'll simulate WebSocket behavior
+            
+            // Simulate successful connection
+            setTimeout(() => {
+                // Simulate receiving initial data
+                const rooms = [
+                    { id: 'room1', name: 'General Chat', description: 'The main chat room for everyone', isPrivate: false },
+                    { id: 'room2', name: 'Tech Talk', description: 'Discuss the latest in technology', isPrivate: false }
+                ];
+                
+                const users = [
+                    { id: 'user1', username: 'Aarav_Sharma', isOnline: true },
+                    { id: 'user2', username: 'Priya_Patel', isOnline: true },
+                    { id: 'user3', username: 'Rahul_Joshi', isOnline: true },
+                    { id: 'user4', username: 'Ananya_Gupta', isOnline: false }
+                ];
+                
+                updateChatRooms(rooms);
+                updateOnlineUsers(users);
+                
+                // Show the user they're connected
+                addSystemMessage('You are now connected to the chat server.');
+            }, 500);
+        }
+        
+        function updateChatRooms(rooms) {
+            chatRoomsList.innerHTML = '';
+            mobileChatRoomsList.innerHTML = '';
+            
+            rooms.forEach(room => {
+                const roomElement = createRoomElement(room);
+                chatRoomsList.appendChild(roomElement);
+                
+                const mobileRoomElement = createRoomElement(room);
+                mobileRoomElement.classList.add('pl-3');
+                mobileChatRoomsList.appendChild(mobileRoomElement);
+            });
+        }
+        
+        function updateOnlineUsers(users) {
+            onlineUsersList.innerHTML = '';
+            mobileOnlineUsersList.innerHTML = '';
+            
+            // Filter out the current user
+            const otherUsers = users.filter(user => user.id !== currentUser?.id);
+            
+            otherUsers.forEach(user => {
+                const userElement = createUserElement(user);
+                onlineUsersList.appendChild(userElement);
+                
+                const mobileUserElement = createUserElement(user);
+                mobileUserElement.classList.add('pl-3');
+                mobileOnlineUsersList.appendChild(mobileUserElement);
+            });
+        }
+        
+        function createRoomElement(room) {
+            const div = document.createElement('div');
+            div.className = 'p-2 rounded hover:bg-indigo-50 cursor-pointer transition-colors';
+            div.innerHTML = `
+                <div class="font-medium">${room.name}</div>
+                <div class="text-sm text-gray-500 truncate">${room.description || 'No description'}</div>
+            `;
+            
+            div.addEventListener('click', () => joinRoom(room));
+            
+            return div;
+        }
+        
+        function createUserElement(user) {
+            const div = document.createElement('div');
+            div.className = 'flex items-center p-2 rounded hover:bg-indigo-50 cursor-pointer transition-colors';
+            div.innerHTML = `
+                <div class="relative mr-3">
+                    <img src="https://i.pravatar.cc/150?u=${user.id}" alt="User profile picture for ${user.username}" class="w-8 h-8 rounded-full">
+                    <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full ${user.isOnline ? 'bg-green-500' : 'bg-gray-400'} border-2 border-white"></span>
+                </div>
+                <div>
+                    <div class="font-medium">${user.username}</div>
+                    <div class="text-xs text-gray-500">${user.isOnline ? 'Online' : 'Offline'}</div>
+                </div>
+            `;
+            
+            div.addEventListener('click', () => startPrivateChat(user));
+            
+            return div;
+        }
+        
+        function joinRoom(room) {
+            currentRoom = { ...room, type: 'room' };
+            updateChatHeader();
+            loadRoomMessages(room.id);
+            messageForm.classList.remove('hidden');
+            
+            // Close mobile sidebar if open
+            mobileSidebar.classList.add('translate-x-full');
+        }
+        
+        function startPrivateChat(user) {
+            currentRoom = { ...user, type: 'private' };
+            updateChatHeader();
+            loadPrivateMessages(user.id);
+            messageForm.classList.remove('hidden');
+            
+            // Close mobile sidebar if open
+            mobileSidebar.classList.add('translate-x-full');
+        }
+        
+        function updateChatHeader() {
+            if (currentRoom.type === 'room') {
+                currentChatTitle.textContent = currentRoom.name;
+                currentChatSubtitle.textContent = currentRoom.description || 'Group chat';
+            } else {
+                currentChatTitle.textContent = currentRoom.username;
+                currentChatSubtitle.textContent = 'Private conversation';
+            }
+        }
+        
+        function loadRoomMessages(roomId) {
+            // In a real app, this would fetch messages from the server
+            // For demo, we'll create some sample messages
+            
+            messagesContainer.innerHTML = '';
+            
+            const sampleMessages = [
+                {
+                    id: 'msg1',
+                    sender: { id: 'user1', username: 'jane_doe' },
+                    content: 'Hello everyone! Welcome to the chat room.',
+                    timestamp: new Date(Date.now() - 3600000).toISOString()
+                },
+                {
+                    id: 'msg2',
+                    sender: { id: currentUser.id, username: currentUser.username },
+                    content: 'Hi Jane! Thanks for having me here.',
+                    timestamp: new Date(Date.now() - 1800000).toISOString()
+                },
+                {
+                    id: 'msg3',
+                    sender: { id: 'user2', username: 'john_smith' },
+                    content: 'What are we discussing today?',
+                    timestamp: new Date(Date.now() - 900000).toISOString()
+                }
+            ];
+            
+            sampleMessages.forEach(msg => addMessageToChat(msg));
+            
+            // Scroll to bottom
+            setTimeout(() => {
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }, 100);
+        }
+        
+        function loadPrivateMessages(userId) {
+            // In a real app, this would fetch private messages from the server
+            // For demo, we'll create some sample messages
+            
+            messagesContainer.innerHTML = '';
+            
+            const sampleMessages = [
+                {
+                    id: 'priv1',
+                    sender: { id: userId, username: currentRoom.username },
+                    content: "Hey there! How's it going?",
+                    timestamp: new Date(Date.now() - 3600000).toISOString()
+                },
+                {
+                    id: 'priv2',
+                    sender: { id: currentUser.id, username: currentUser.username },
+                    content: "I'm doing great! Just working on this chat app.",
+                    timestamp: new Date(Date.now() - 1800000).toISOString()
+                },
+                {
+                    id: 'priv3',
+                    sender: { id: userId, username: currentRoom.username },
+                    content: "That sounds interesting! Can I test it out?",
+                    timestamp: new Date(Date.now() - 900000).toISOString()
+                }
+            ];
+            
+            sampleMessages.forEach(msg => addMessageToChat(msg));
+            
+            // Scroll to bottom
+            setTimeout(() => {
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }, 100);
+        }
+        
+        function handleCreateRoom(e) {
+            e.preventDefault();
+            const name = document.getElementById('roomName').value;
+            const description = document.getElementById('roomDescription').value;
+            const isPrivate = document.getElementById('roomIsPrivate').checked;
+            
+            // In a real app, this would be sent to the server
+            const newRoom = {
+                id: `room-${Date.now()}`,
+                name,
+                description,
+                isPrivate
+            };
+            
+            // Add to room lists
+            const roomElement = createRoomElement(newRoom);
+            chatRoomsList.appendChild(roomElement);
+            
+            const mobileRoomElement = createRoomElement(newRoom);
+            mobileRoomElement.classList.add('pl-3');
+            mobileChatRoomsList.appendChild(mobileRoomElement);
+            
+            // Clear form and close modal
+            createRoomForm.reset();
+            createRoomModal.classList.add('hidden');
+        }
+        
+        function handleTyping() {
+            if (!currentRoom || !socket) return;
+            
+            // Clear previous timeout
+            if (typingTimeout) {
+                clearTimeout(typingTimeout);
+            }
+            
+            // Notify server about typing if not already doing so
+            if (!isTyping) {
+                isTyping = true;
+                // In a real app, you would send a WebSocket message
+                // socket.send(JSON.stringify({ type: 'typing', roomId: currentRoom.id }));
+            }
+            
+            // Set timeout to stop typing notification after 2 seconds of inactivity
+            typingTimeout = setTimeout(() => {
+                isTyping = false;
+                // In a real app, you would send a WebSocket message
+                // socket.send(JSON.stringify({ type: 'stopped_typing', roomId: currentRoom.id }));
+            }, 2000);
+            
+            // For demo purposes, we'll show typing indicator for current user
+            if (currentRoom.type === 'private') {
+                updateTypingIndicator(currentUser.username);
+            }
+        }
+        
+        function updateTypingIndicator(username) {
+            if (username === currentUser.username) {
+                // Don't show our own typing indicator to ourselves
+                typingIndicator.classList.remove('show');
+                return;
+            }
+            
+            typingIndicator.textContent = `${username} is typing...`;
+            typingIndicator.classList.add('show');
+            
+            // Hide after 2 seconds
+            setTimeout(() => {
+                typingIndicator.classList.remove('show');
+            }, 2000);
+        }
+        
+        function sendMessage(e) {
+            e.preventDefault();
+            const content = messageInput.value.trim();
+            if (!content || !currentRoom || !currentUser) return;
+            
+            // Create message object
+            const message = {
+                id: `msg-${Date.now()}`,
+                sender: { id: currentUser.id, username: currentUser.username },
+                content,
+                timestamp: new Date().toISOString()
+            };
+            
+            // In a real app, this would be sent via WebSocket
+            // Here we'll just add it directly to the chat
+            addMessageToChat(message);
+            
+            // Clear input
+            messageInput.value = '';
+            
+            // Scroll to bottom
+            setTimeout(() => {
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }, 100);
+        }
+        
+        function addMessageToChat(message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'mb-4';
+            
+            const isCurrentUser = message.sender.id === currentUser.id;
+            
+            if (message.sender.id === 'system') {
+                // System message
+                messageDiv.innerHTML = `
+                    <div class="text-center text-gray-500 text-sm mb-2">
+                        ${message.content}
+                    </div>
+                `;
+            } else {
+                // User message
+                messageDiv.innerHTML = `
+                    <div class="flex ${isCurrentUser ? 'justify-end' : ''}">
+                        <div class="flex ${isCurrentUser ? 'flex-row-reverse' : ''} max-w-xs md:max-w-md lg:max-w-lg">
+                            <div class="mr-2">
+                                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/194879f7-5e55-4fd3-aad4-7d37144c25f8.png" alt="Profile picture of ${message.sender.username}" class="w-8 h-8 rounded-full">
+                            </div>
+                            <div>
+                                <div class="${isCurrentUser ? 'text-right' : ''} text-xs text-gray-500 mb-1">
+                                    ${message.sender.username} • ${formatTime(message.timestamp)}
+                                </div>
+                                <div class="${isCurrentUser ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-800'} px-4 py-2 rounded-lg inline-block">
+                                    ${message.content}
+                                    <div class="text-right text-xs mt-1 ${isCurrentUser ? 'text-indigo-200' : 'text-gray-500'}">
+                                        ${formatTime(message.timestamp)} 
+                                        ${isCurrentUser ? '<span class="ml-1">✓✓</span>' : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            messagesContainer.appendChild(messageDiv);
+        }
+        
+        function addSystemMessage(content) {
+            const message = {
+                id: `sys-${Date.now()}`,
+                sender: { id: 'system', username: 'System' },
+                content,
+                timestamp: new Date().toISOString()
+            };
+            
+            addMessageToChat(message);
+        }
+        
+        function formatTime(isoString) {
+            const date = new Date(isoString);
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+        
+        // Mock function to simulate sending user data via email
+        async function sendUserData(email, action, userData) {
+            // In a real app, this would send an API request to your backend
+            // which would then send an email to the specified address
+            
+            console.log(`Simulating sending ${action} data to ${email}`);
+            console.log('User data:', userData);
+            
+            // Include the specified email as recipient
+            const recipientEmail = 'kaustubhjagdale4053@gmail.com';
+            console.log(`Copy of user data also sent to ${recipientEmail}`);
+            
+            // Return a promise to simulate async operation
+            return new Promise(resolve => setTimeout(resolve, 1000));
+        }
+    </script>
+</body>
+</html>
+

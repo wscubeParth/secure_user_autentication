@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .hero-gradient {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Authentication Modals -->
+    <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-8 w-full max-w-md">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Admin Login</h2>
+                <button onclick="toggleModal('loginModal')" class="text-gray-500 hover:text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <form id="loginForm">
+                <div class="mb-4">
+                    <label for="loginEmail" class="block text-gray-700 mb-2">Email</label>
+                    <input type="email" id="loginEmail" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                <div class="mb-6">
+                    <label for="loginPassword" class="block text-gray-700 mb-2">Password</label>
+                    <input type="password" id="loginPassword" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-all">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="registerModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-8 w-full max-w-md">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Admin Registration</h2>
+                <button onclick="toggleModal('registerModal')" class="text-gray-500 hover:text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <form id="registerForm">
+                <div class="mb-4">
+                    <label for="registerName" class="block text-gray-700 mb-2">Full Name</label>
+                    <input type="text" id="registerName" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                <div class="mb-4">
+                    <label for="registerEmail" class="block text-gray-700 mb-2">Email</label>
+                    <input type="email" id="registerEmail" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                <div class="mb-4">
+                    <label for="registerPassword" class="block text-gray-700 mb-2">Password</label>
+                    <input type="password" id="registerPassword" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                <div class="mb-6">
+                    <label for="registerConfirmPassword" class="block text-gray-700 mb-2">Confirm Password</label>
+                    <input type="password" id="registerConfirmPassword" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-all">Register</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Employee Modal -->
+    <div id="employeeModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-8 w-full max-w-md">
+            <div class="flex justify-between items-center mb-6">
+                <h2 id="employeeModalTitle" class="text-2xl font-bold text-gray-800">Add Employee</h2>
+                <button onclick="toggleModal('employeeModal')" class="text-gray-500 hover:text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <form id="employeeForm">
+                <input type="hidden" id="employeeId">
+                <div class="mb-4">
+                    <label for="employeeName" class="block text-gray-700 mb-2">Full Name</label>
+                    <input type="text" id="employeeName" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                <div class="mb-4">
+                    <label for="employeeEmail" class="block text-gray-700 mb-2">Email</label>
+                    <input type="email" id="employeeEmail" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                <div class="mb-4">
+                    <label for="employeePosition" class="block text-gray-700 mb-2">Position</label>
+                    <input type="text" id="employeePosition" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                <div class="mb-4">
+                    <label for="employeeDepartment" class="block text-gray-700 mb-2">Department</label>
+                    <select id="employeeDepartment" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                        <option value="">Select Department</option>
+                        <option value="IT">IT</option>
+                        <option value="HR">HR</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Operations">Operations</option>
+                    </select>
+                </div>
+                <div class="mb-6">
+                    <label for="employeeSalary" class="block text-gray-700 mb-2">Salary ($)</label>
+                    <input type="number" id="employeeSalary" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button type="button" onclick="toggleModal('employeeModal')" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition-all">Cancel</button>
+                    <button type="submit" id="employeeSubmitBtn" class="px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition-all font-medium">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Layout -->
+    <div class="min-h-screen">
+        <!-- Navigation -->
+        <nav class="bg-white shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <div class="flex items-center">
+                        <span class="text-xl font-bold text-blue-600">EmpManage</span>
+                    </div>
+                    <div class="hidden md:flex items-center space-x-4">
+                        <button onclick="toggleModal('loginModal')" class="text-gray-600 hover:text-blue-700 px-3 py-2 rounded-md text-sm font-medium transition-all">Login</button>
+                        <button onclick="toggleModal('registerModal')" class="bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-800 transition-all">Register</button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div id="authContent" class="hero-gradient rounded-xl p-8 text-white mb-8">
+                <div class="max-w-2xl mx-auto text-center">
+                    <h1 class="text-4xl font-bold mb-4">Employee Management System</h1>
+                    <p class="text-xl mb-6">Secure platform for managing your organization's employee records with ease.</p>
+                    <div class="flex justify-center space-x-4">
+                        <button onclick="toggleModal('loginModal')" class="bg-white text-blue-600 px-6 py-3 rounded-lg font-medium hover:bg-opacity-90 transition-all">Login</button>
+                        <button onclick="toggleModal('registerModal')" class="border border-white text-white px-6 py-3 rounded-lg font-medium hover:bg-white hover:bg-opacity-10 transition-all">Register</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="adminContent" class="hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Employee Records</h2>
+                    <button onclick="openAddEmployeeModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-all">Add Employee</button>
+                </div>
+
+                <div class="bg-white shadow rounded-lg overflow-hidden">
+                    <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
+                        <div class="flex items-center">
+                            <input type="text" id="searchEmployee" placeholder="Search employees..." class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-full max-w-xs">
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Name</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Salary</th>
+                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="employeeTableBody" class="bg-white divide-y divide-gray-200">
+                                <!-- Employee records will be inserted here dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="px-4 py-3 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
+                        <div class="text-sm text-gray-500">Showing <span id="currentPage">1</span> of <span id="totalPages">1</span></div>
+                        <div class="flex space-x-2">
+                            <button id="prevPageBtn" class="px-4 py-1 border rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-100 transition-all">Previous</button>
+                            <button id="nextPageBtn" class="px-4 py-1 border rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-100 transition-all">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // State management
+        let currentUser = null;
+        let employees = [];
+        let currentPage = 1;
+        const employeesPerPage = 5;
+
+        // DOM Elements
+        const authContent = document.getElementById('authContent');
+        const adminContent = document.getElementById('adminContent');
+        const employeeTableBody = document.getElementById('employeeTableBody');
+        const searchEmployee = document.getElementById('searchEmployee');
+
+        // Event Listeners
+        document.getElementById('loginForm').addEventListener('submit', handleLogin);
+        document.getElementById('registerForm').addEventListener('submit', handleRegister);
+        document.getElementById('employeeForm').addEventListener('submit', handleEmployeeSubmit);
+        searchEmployee.addEventListener('input', filterEmployees);
+        document.getElementById('prevPageBtn').addEventListener('click', () => changePage(-1));
+        document.getElementById('nextPageBtn').addEventListener('click', () => changePage(1));
+
+        // Toggle modal visibility
+        function toggleModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.toggle('hidden');
+        }
+
+        // Handle login
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            // Simulate API call
+            try {
+                // Validate credentials
+                const user = await authenticateUser(email, password);
+                if (user) {
+                    currentUser = user;
+                    toggleModal('loginModal');
+                    authContent.classList.add('hidden');
+                    adminContent.classList.remove('hidden');
+                    loadEmployees();
+                } else {
+                    alert('Invalid credentials');
+                }
+            } catch (error) {
+                alert('Error logging in');
+                console.error(error);
+            }
+        }
+
+        // Handle registration
+        async function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+
+            // Validation
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+
+            // Simulate API call
+            try {
+                const newUser = await registerUser(name, email, password);
+                if (newUser) {
+                    alert('Registration successful! Please login.');
+                    toggleModal('registerModal');
+                }
+            } catch (error) {
+                alert('Error registering user');
+                console.error(error);
+            }
+        }
+
+        // Mock authentication
+        async function authenticateUser(email, password) {
+            // In a real app, this would call your backend API
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    if (email === 'kaustubhjagdale4053@gmail.com' && password === '123456') {
+                        resolve({
+                            id: 1,
+                            name: 'Kaustubh Ramesh Jagdale',
+                            email: 'kaustubhjagdale4053@gmail.com',
+                            role: 'admin'
+                        });
+                    } else {
+                        resolve(null);
+                    }
+                }, 500);
+            });
+        }
+
+        // Mock registration
+        async function registerUser(name, email, password) {
+            // In a real app, this would call your backend API
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    resolve({
+                        id: 2,
+                        name,
+                        email,
+                        role: 'admin'
+                    });
+                }, 500);
+            });
+        }
+
+        // Employee CRUD operations
+        function openAddEmployeeModal() {
+            document.getElementById('employeeId').value = '';
+            document.getElementById('employeeModalTitle').textContent = 'Add Employee';
+            document.getElementById('employeeSubmitBtn').textContent = 'Save';
+            document.getElementById('employeeForm').reset();
+            toggleModal('employeeModal');
+        }
+
+        function openEditEmployeeModal(id) {
+            const employee = employees.find(e => e.id === id);
+            if (employee) {
+                document.getElementById('employeeId').value = employee.id;
+                document.getElementById('employeeModalTitle').textContent = 'Edit Employee';
+                document.getElementById('employeeSubmitBtn').textContent = 'Update';
+                document.getElementById('employeeName').value = employee.name;
+                document.getElementById('employeeEmail').value = employee.email;
+                document.getElementById('employeePosition').value = employee.position;
+                document.getElementById('employeeDepartment').value = employee.department;
+                document.getElementById('employeeSalary').value = employee.salary;
+                toggleModal('employeeModal');
+            }
+        }
+
+        async function handleEmployeeSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('employeeId').value;
+            const name = document.getElementById('employeeName').value;
+            const email = document.getElementById('employeeEmail').value;
+            const position = document.getElementById('employeePosition').value;
+            const department = document.getElementById('employeeDepartment').value;
+            const salary = document.getElementById('employeeSalary').value;
+
+            try {
+                if (id) {
+                    // Update existing employee
+                    await updateEmployee(id, { name, email, position, department, salary });
+                } else {
+                    // Add new employee
+                    await addEmployee({ name, email, position, department, salary });
+                }
+                toggleModal('employeeModal');
+                loadEmployees();
+            } catch (error) {
+                alert('Error saving employee');
+                console.error(error);
+            }
+        }
+
+        async function deleteEmployee(id) {
+            if (confirm('Are you sure you want to delete this employee?')) {
+                try {
+                    // Simulate API call
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    employees = employees.filter(e => e.id !== id);
+                    renderEmployees();
+                } catch (error) {
+                    alert('Error deleting employee');
+                    console.error(error);
+                }
+            }
+        }
+
+        // Mock employee operations
+        async function loadEmployees() {
+            try {
+                // Simulate API call
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // Generate mock data
+                if (employees.length === 0) {
+                    employees = [
+                        { id: 1, name: 'John Doe', email: 'john@example.com', position: 'Software Engineer', department: 'IT', salary: 80000 },
+                        { id: 2, name: 'Jane Smith', email: 'jane@example.com', position: 'HR Manager', department: 'HR', salary: 75000 },
+                        { id: 3, name: 'Mike Johnson', email: 'mike@example.com', position: 'Financial Analyst', department: 'Finance', salary: 85000 },
+                        { id: 4, name: 'Sarah Williams', email: 'sarah@example.com', position: 'Marketing Specialist', department: 'Marketing', salary: 70000 },
+                        { id: 5, name: 'David Brown', email: 'david@example.com', position: 'Operations Manager', department: 'Operations', salary: 90000 },
+                        { id: 6, name: 'Emily Davis', email: 'emily@example.com', position: 'UI/UX Designer', department: 'IT', salary: 75000 },
+                        { id: 7, name: 'Robert Wilson', email: 'robert@example.com', position: 'Accountant', department: 'Finance', salary: 65000 }
+                    ];
+                }
+                
+                renderEmployees();
+            } catch (error) {
+                alert('Error loading employees');
+                console.error(error);
+            }
+        }
+
+        async function addEmployee(employee) {
+            // Simulate API call
+            await new Promise(resolve => setTimeout(resolve, 500));
+            employee.id = employees.length > 0 ? Math.max(...employees.map(e => e.id)) + 1 : 1;
+            employees.push(employee);
+        }
+
+        async function updateEmployee(id, updatedData) {
+            // Simulate API call
+            await new Promise(resolve => setTimeout(resolve, 500));
+            employees = employees.map(e => e.id === id ? { ...e, ...updatedData } : e);
+        }
+
+        // Render employees
+        function renderEmployees(filteredEmployees = null) {
+            const employeesToRender = filteredEmployees || employees;
+            const startIndex = (currentPage - 1) * employeesPerPage;
+            const paginatedEmployees = employeesToRender.slice(startIndex, startIndex + employeesPerPage);
+            
+            employeeTableBody.innerHTML = paginatedEmployees.map(employee => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${employee.name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${employee.email}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${employee.position}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${employee.department}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">$${employee.salary.toLocaleString()}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button onclick="openEditEmployeeModal(${employee.id})" class="text-blue-600 hover:text-blue-900 mr-3">Edit</button>
+                        <button onclick="deleteEmployee(${employee.id})" class="text-red-600 hover:text-red-900">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            updatePagination(employeesToRender.length);
+        }
+
+        // Filter employees
+        function filterEmployees() {
+            const searchTerm = searchEmployee.value.toLowerCase();
+            if (searchTerm === '') {
+                renderEmployees();
+                return;
+            }
+
+            const filtered = employees.filter(employee =>
+                employee.name.toLowerCase().includes(searchTerm) ||
+                employee.email.toLowerCase().includes(searchTerm) ||
+                employee.position.toLowerCase().includes(searchTerm) ||
+                employee.department.toLowerCase().includes(searchTerm)
+            );
+            renderEmployees(filtered);
+        }
+
+        // Pagination
+        function changePage(direction) {
+            const newPage = currentPage + direction;
+            const totalPages = Math.ceil(employees.length / employeesPerPage);
+            
+            if (newPage > 0 && newPage <= totalPages) {
+                currentPage = newPage;
+                renderEmployees();
+            }
+        }
+
+        function updatePagination(totalEmployees) {
+            const totalPages = Math.ceil(totalEmployees / employeesPerPage);
+            document.getElementById('currentPage').textContent = currentPage;
+            document.getElementById('totalPages').textContent = totalPages;
+            
+            document.getElementById('prevPageBtn').disabled = currentPage === 1;
+            document.getElementById('nextPageBtn').disabled = currentPage === totalPages;
+        }
+    </script>
+</body>
+</html>
+

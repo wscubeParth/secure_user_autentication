@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StepStyle - Premium Footwear</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4F46E5',
+                        secondary: '#10B981',
+                        dark: '#1F2937',
+                        light: '#F3F4F6',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .gradient-text {
+            background: linear-gradient(90deg, #4F46E5, #10B981);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+        .product-image {
+            height: 200px;
+            object-fit: contain;
+        }
+        @media (max-width: 768px) {
+            .product-image {
+                height: 150px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Header/Navigation -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="#" class="text-xl font-bold gradient-text">StepStyle</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="#products" class="text-gray-600 hover:text-primary px-3 py-2 text-sm font-medium">Products</a>
+                    <a href="#about" class="text-gray-600 hover:text-primary px-3 py-2 text-sm font-medium">About</a>
+                    <a href="#contact" class="text-gray-600 hover:text-primary px-3 py-2 text-sm font-medium">Contact</a>
+                    <div class="relative" id="cart-icon">
+                        <button onclick="toggleCart()" class="text-gray-600 hover:text-primary relative">
+                            <i class="fas fa-shopping-cart text-xl"></i>
+                            <span id="cart-count" class="absolute -top-2 -right-2 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                        </button>
+                        <div id="cart-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg z-50 border border-gray-200">
+                            <div class="p-4">
+                                <h3 class="text-lg font-semibold">Your Cart</h3>
+                                <div id="cart-items" class="mt-2 max-h-60 overflow-y-auto">
+                                    <p class="text-gray-500 py-4">Your cart is empty</p>
+                                </div>
+                                <div class="border-t border-gray-200 pt-3">
+                                    <div class="flex justify-between mb-2">
+                                        <span>Subtotal:</span>
+                                        <span id="cart-subtotal">$0.00</span>
+                                    </div>
+                                    <button onclick="checkout()" class="w-full bg-primary hover:bg-primary-dark text-white py-2 rounded-md transition-all">
+                                        Checkout
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="auth-buttons" class="flex space-x-2">
+                        <button onclick="showLoginModal()" class="border border-primary text-primary hover:bg-primary hover:text-white px-4 py-1 rounded-md text-sm transition-all">Login</button>
+                        <button onclick="showSignupModal()" class="bg-primary hover:bg-primary-dark text-white px-4 py-1 rounded-md text-sm transition-all">Sign Up</button>
+                    </div>
+                    <div id="user-profile" class="hidden items-center space-x-2">
+                        <div class="relative">
+                            <button onclick="toggleProfileMenu()" class="flex items-center space-x-1 text-gray-600 hover:text-primary">
+                                <span id="username-display" class="font-medium"></span>
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </button>
+                            <div id="profile-menu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 border border-gray-200">
+                                <div class="py-1">
+                                    <a href="#orders" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">My Orders</a>
+                                    <button onclick="logout()" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="bg-[url('https://images.unsplash.com/photo-1600269452121-4f2416e55c28')] bg-cover bg-center py-20 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-6">Step Into Style</h1>
+            <p class="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">Discover our premium collection of footwear designed for comfort and fashion</p>
+            <a href="#products" class="inline-block bg-white text-primary hover:text-primary-dark px-8 py-3 rounded-md font-semibold transition-all">Shop Now</a>
+        </div>
+    </section>
+
+    <!-- Featured Products -->
+    <section id="products" class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-center mb-12 gradient-text">Our Collection</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" id="product-grid">
+                <!-- Product cards will be dynamically inserted here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Product Details Modal -->
+    <div id="product-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen">
+            <div class="bg-white rounded-lg max-w-4xl w-full mx-4 overflow-hidden shadow-xl">
+                <div class="relative">
+                    <button onclick="closeModal()" class="absolute top-2 right-2 bg-gray-100 hover:bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="md:flex">
+                    <div class="md:w-1/2 p-6 flex items-center justify-center bg-gray-50">
+                        <img id="modal-product-image" src="https://images.unsplash.com/photo-1600269452121-4f2416e55c28" alt="Premium athletic shoe with breathable mesh and cushioned sole" class="product-image max-h-80 mx-auto">
+                    </div>
+                    <div class="md:w-1/2 p-6">
+                        <h2 id="modal-product-name" class="text-2xl font-bold mb-2"></h2>
+                        <div class="flex items-center mb-4">
+                            <div class="flex text-yellow-400">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                            </div>
+                            <span class="text-gray-500 ml-2">(42 reviews)</span>
+                        </div>
+                        <p id="modal-product-description" class="text-gray-600 mb-4"></p>
+                        <div class="border-t border-b border-gray-200 py-4 mb-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-medium">Price:</span>
+                                <span id="modal-product-price" class="text-xl font-bold text-primary"></span>
+                            </div>
+                            <div class="flex items-center space-x-4 mb-2">
+                                <span class="font-medium">Size:</span>
+                                <select id="size-select" class="border border-gray-300 rounded-md px-3 py-1">
+                                    <option value="5">US 5</option>
+                                    <option value="6">US 6</option>
+                                    <option value="7">US 7</option>
+                                    <option value="8">US 8</option>
+                                    <option value="9">US 9</option>
+                                    <option value="10">US 10</option>
+                                </select>
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                <span class="font-medium">Quantity:</span>
+                                <div class="flex items-center border border-gray-300 rounded-md">
+                                    <button onclick="decreaseQuantity()" class="px-2 py-1 hover:bg-gray-100">-</button>
+                                    <span id="product-quantity" class="px-3">1</span>
+                                    <button onclick="increaseQuantity()" class="px-2 py-1 hover:bg-gray-100">+</button>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="addToCartModal()" class="w-full bg-primary hover:bg-primary-dark text-white py-3 rounded-md transition-all mb-3">
+                            Add to Cart
+                        </button>
+                        <button class="w-full bg-gray-100 hover:bg-gray-200 text-dark py-3 rounded-md transition-all">
+                            <i class="far fa-heart mr-2"></i> Wishlist
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Section -->
+    <section id="about" class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="md:flex items-center">
+                <div class="md:w-1/2 mb-8 md:mb-0">
+                    <img src="https://images.unsplash.com/photo-1600269452563-8fa81a9dfdea" alt="Our shoe store interior with modern displays" class="rounded-lg shadow-md w-full">
+                </div>
+                <div class="md:w-1/2 md:pl-12">
+                    <h2 class="text-3xl font-bold mb-6 gradient-text">Our Story</h2>
+                    <p class="text-gray-600 mb-4">Founded in 2010, StepStyle began as a small local shoe store with a passion for quality footwear. Over the years, we've grown into a destination for shoe enthusiasts looking for the perfect combination of style and comfort.</p>
+                    <p class="text-gray-600 mb-6">Our team carefully curates each collection, working directly with manufacturers to ensure the highest quality materials and craftsmanship in every pair.</p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-white p-4 rounded-lg shadow-sm">
+                            <div class="text-primary mb-2">
+                                <i class="fas fa-truck text-2xl"></i>
+                            </div>
+                            <h3 class="font-bold mb-1">Free Shipping</h3>
+                            <p class="text-sm text-gray-600">On all orders over $50</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm">
+                            <div class="text-primary mb-2">
+                                <i class="fas fa-undo text-2xl"></i>
+                            </div>
+                            <h3 class="font-bold mb-1">Easy Returns</h3>
+                            <p class="text-sm text-gray-600">30-day return policy</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="py-12 bg-primary text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-2xl font-bold mb-2">Stay Updated</h2>
+            <p class="mb-6 max-w-2xl mx-auto">Subscribe to our newsletter for exclusive offers, new arrivals, and styling tips.</p>
+            <div class="flex max-w-md mx-auto">
+                <input type="email" placeholder="Your email address" class="flex-grow px-4 py-2 rounded-l-md text-gray-900 focus:outline-none">
+                <button class="bg-secondary hover:bg-secondary-dark px-6 py-2 rounded-r-md transition-all">Subscribe</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-center mb-12 gradient-text">Get In Touch</h2>
+            <div class="md:flex">
+                <div class="md:w-1/2 mb-8 md:mb-0 border-r border-gray-200">
+                    <div class="max-w-md mx-auto">
+                        <div class="mb-6">
+                            <h3 class="text-xl font-bold mb-4">Store Information</h3>
+                            <div class="flex items-start mb-3">
+                                <div class="text-primary mr-4 mt-1">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium">Address</h4>
+                                    <p class="text-gray-600">123 Main Street, Downtown, City</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start mb-3">
+                                <div class="text-primary mr-4 mt-1">
+                                    <i class="fas fa-phone-alt"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium">Phone</h4>
+                                    <p class="text-gray-600">(123) 456-7890</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="text-primary mr-4 mt-1">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium">Email</h4>
+                                    <p class="text-gray-600">contact@stepstyle.com</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <h3 class="text-xl font-bold mb-4">Business Hours</h3>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Monday - Friday</span>
+                                <span class="font-medium">9:00 AM - 7:00 PM</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Saturday</span>
+                                <span class="font-medium">10:00 AM - 6:00 PM</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Sunday</span>
+                                <span class="font-medium">Closed</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="md:w-1/2 md:pl-12">
+                    <div class="max-w-md mx-auto">
+                        <h3 class="text-xl font-bold mb-4">Send Us a Message</h3>
+                        <form id="contact-form" onsubmit="sendContactMessage(event)">
+                            <div class="mb-4">
+                                <label for="name" class="block text-gray-600 mb-1">Name</label>
+                                <input type="text" id="name" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="email" class="block text-gray-600 mb-1">Email</label>
+                                <input type="email" id="email" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="subject" class="block text-gray-600 mb-1">Subject</label>
+                                <input type="text" id="subject" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="message" class="block text-gray-600 mb-1">Message</label>
+                                <textarea id="message" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" required></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-primary hover:bg-primary-dark text-white py-2 rounded-md transition-all">
+                                Send Message
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen">
+            <div class="bg-white rounded-lg max-w-md w-full mx-4 overflow-hidden shadow-xl">
+                <div class="relative">
+                    <button onclick="closeModals()" class="absolute top-2 right-2 bg-gray-100 hover:bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold mb-6 text-center gradient-text">Login to Your Account</h2>
+                    <form id="login-form" onsubmit="login(event)">
+                        <div class="mb-4">
+                            <label for="login-email" class="block text-gray-600 mb-1">Email</label>
+                            <input type="email" id="login-email" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" required>
+                        </div>
+                        <div class="mb-6">
+                            <label for="login-password" class="block text-gray-600 mb-1">Password</label>
+                            <input type="password" id="login-password" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" required>
+                        </div>
+                        <button type="submit" class="w-full bg-primary hover:bg-primary-dark text-white py-2 rounded-md transition-all mb-4">
+                            Login
+                        </button>
+                        <div class="text-center">
+                            <button type="button" onclick="showForgotPasswordModal()" class="text-sm text-primary hover:underline">Forgot password?</button>
+                        </div>
+                        <div class="text-center mt-4">
+                            <span class="text-gray-600">Don't have an account?</span>
+                            <button type="button" onclick="showSignupModalFromLogin()" class="ml-1 text-primary hover:underline">Sign up</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div id="signup-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen">
+            <div class="bg-white rounded-lg max-w-md w-full mx-4 overflow-hidden shadow-xl">
+                <div class="relative">
+                    <button onclick="closeModals()" class="absolute top-2 right-2 bg-gray-100 hover:bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold mb-6 text-center gradient-text">Create an Account</h2>
+                    <form id="signup-form" onsubmit="signup(event)">
+                        <div class="mb-4">
+                            <label for="signup-name" class="block text-gray-600 mb-1">Full Name</label>
+                            <input type="text" id="signup-name" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="signup-email" class="block text-gray-600 mb-1">Email</label>
+                            <input type="email" id="signup-email" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="signup-password" class="block text-gray-600 mb-1">Password</label>
+                            <input type="password" id="signup-password" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" required>
+                        </div>
+                        <div class="mb-6">
+                            <label for="signup-confirm-password" class="block text-gray-600 mb-1">Confirm Password</label>
+                            <input type="password" id="signup-confirm-password" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" required>
+                        </div>
+                        <button type="submit" class="w-full bg-primary hover:bg-primary-dark text-white py-2 rounded-md transition-all">
+                            Create Account
+                        </button>
+                        <div class="text-center mt-4">
+                            <span class="text-gray-600">Already have an account?</span>
+                            <button type="button" onclick="showLoginModalFromSignup()" class="ml-1 text-primary hover:underline">Login</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div id="forgot-password-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen">
+            <div class="bg-white rounded-lg max-w-md w-full mx-4 overflow-hidden shadow-xl">
+                <div class="relative">
+                    <button onclick="closeModals()" class="absolute top-2 right-2 bg-gray-100 hover:bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold mb-6 text-center gradient-text">Reset Password</h2>
+                    <form id="forgot-password-form" onsubmit="resetPassword(event)">
+                        <div class="mb-4">
+                            <label for="reset-email" class="block text-gray-600 mb-1">Email</label>
+                            <input type="email" id="reset-email" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" required>
+                        </div>
+                        <button type="submit" class="w-full bg-primary hover:bg-primary-dark text-white py-2 rounded-md transition-all mb-4">
+                            Reset Password
+                        </button>
+                        <div class="text-center">
+                            <button type="button" onclick="showLoginModalFromForgotPassword()" class="text-sm text-primary hover:underline">Back to login</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Confirmation Modal -->
+    <div id="order-confirmation-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen">
+            <div class="bg-white rounded-lg max-w-md w-full mx-4 overflow-hidden shadow-xl">
+                <div class="relative">
+                    <button onclick="closeOrderModal()" class="absolute top-2 right-2 bg-gray-100 hover:bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="p-6 text-center">
+                    <div class="text-primary mb-4">
+                        <i class="fas fa-check-circle text-5xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold mb-2">Order Confirmed!</h2>
+                    <p class="text-gray-600 mb-6">Thank you for your purchase. Your order has been placed successfully.</p>
+                    <p class="text-gray-600 mb-6">Your order details have been emailed to kaustubhjagdale4053@gmail.com</p>
+                    <button onclick="continueShopping()" class="w-full bg-primary hover:bg-primary-dark text-white py-2 rounded-md transition-all">
+                        Continue Shopping
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-gray-400 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-white text-lg font-semibold mb-4">StepStyle</h3>
+                    <p class="mb-4">Premium footwear for every occasion.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="hover:text-white"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="hover:text-white"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="hover:text-white"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-white text-lg font-semibold mb-4">Shop</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-white">Men's Shoes</a></li>
+                        <li><a href="#" class="hover:text-white">Women's Shoes</a></li>
+                        <li><a href="#" class="hover:text-white">New Arrivals</a></li>
+                        <li><a href="#" class="hover:text-white">Sale</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white text-lg font-semibold mb-4">Support</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-white">Customer Service</a></li>
+                        <li><a href="#" class="hover:text-white">Size Guide</a></li>
+                        <li><a href="#" class="hover:text-white">Returns & Exchanges</a></li>
+                        <li><a href="#" class="hover:text-white">FAQs</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white text-lg font-semibold mb-4">Company</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-white">About Us</a></li>
+                        <li><a href="#" class="hover:text-white">Careers</a></li>
+                        <li><a href="#" class="hover:text-white">Terms & Conditions</a></li>
+                        <li><a href="#" class="hover:text-white">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center">
+                <p>&copy; 2023 StepStyle. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Sample product data
+        const products = [
+            {
+                id: 1,
+                name: "Urban Sneakers",
+                description: "Comfortable urban sneakers with cushioned soles and breathable mesh upper.",
+                price: 89.99,
+                image: "https://images.unsplash.com/photo-1600269452121-4f2416e55c28",
+                altText: "White urban sneakers with gray accents and cushioned soles"
+            },
+            {
+                id: 2,
+                name: "Classic Loafers",
+                description: "Timeless leather loafers perfect for business casual or sophisticated casual wear.",
+                price: 119.99,
+                image: "https://images.unsplash.com/photo-1600398802580-d6de1ae21079",
+                altText: "Premium brown leather loafers with tassel detail"
+            },
+            {
+                id: 3,
+                name: "Running Shoes",
+                description: "High-performance running shoes with responsive cushioning and lightweight design.",
+                price: 109.99,
+                image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff",
+                altText: "High-performance blue and orange running shoes with mesh"
+            },
+            {
+                id: 4,
+                name: "Hiking Boots",
+                description: "Durable waterproof hiking boots with ankle support and rugged traction.",
+                price: 149.99,
+                image: "https://images.unsplash.com/photo-1605348530920-5a4b38eb18c6",
+                altText: "Durable black hiking boots with reinforced toe"
+            },
+            {
+                id: 5,
+                name: "Casual Slip-ons",
+                description: "Easy-to-wear slip-on shoes with memory foam insoles for all-day comfort.",
+                price: 79.99,
+                image: "https://images.unsplash.com/photo-1543508282-6319a3e2625f",
+                altText: "Comfortable gray canvas slip-on shoes"
+            },
+            {
+                id: 6,
+                name: "Formal Oxfords",
+                description: "Elegant formal oxford shoes with premium leather construction.",
+                price: 159.99,
+                image: "https://images.unsplash.com/photo-1560769629-975ec94e6a86",
+                altText: "Elegant black leather oxford shoes"
+            },
+            {
+                id: 7,
+                name: "Canvas Sneakers",
+                description: "Lightweight canvas sneakers with vulcanized rubber soles for timeless style.",
+                price: 59.99,
+                image: "https://images.unsplash.com/photo-1600269452563-8fa81a9dfdea",
+                altText: "Classic white canvas sneakers with red and blue trim"
+            },
+            {
+                id: 8,
+                name: "Winter Boots",
+                description: "Insulated winter boots with waterproof construction and thermal lining.",
+                price: 129.99,
+                image: "https://images.unsplash.com/photo-1554568218-0f1715e72254",
+                altText: "Warm dark brown winter boots with fur trim"
+            }
+        ];
+
+        // Cart and user data
+        let cart = [];
+        let currentUser = null;
+        let selectedProduct = null;
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            renderProducts();
+            checkAuthState();
+        });
+
+        // Render products
+        function renderProducts() {
+            const productGrid = document.getElementById('product-grid');
+            productGrid.innerHTML = '';
+
+            products.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all card-hover';
+                productCard.innerHTML = `
+                    <div class="p-4 flex justify-center items-center bg-gray-50">
+                        <img src="${product.image}" alt="${product.altText}" class="product-image">
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-bold mb-1">${product.name}</h3>
+                        <p class="text-gray-600 text-sm mb-2 line-clamp-2">${product.description}</p>
+                        <div class="flex justify-between items-center mt-3">
+                            <span class="font-bold text-primary">$${product.price.toFixed(2)}</span>
+                            <button onclick="showProductModal(${product.id})" class="bg-primary hover:bg-primary-dark text-white px-3 py-1 rounded text-sm transition-all">
+                                <i class="fas fa-shopping-cart mr-1"></i> Add
+                            </button>
+                        </div>
+                    </div>
+                `;
+                productGrid.appendChild(productCard);
+            });
+        }
+
+        // Show product modal
+        function showProductModal(productId) {
+            selectedProduct = products.find(p => p.id === productId);
+            if (selectedProduct) {
+                document.getElementById('modal-product-name').textContent = selectedProduct.name;
+                document.getElementById('modal-product-description').textContent = selectedProduct.description;
+                document.getElementById('modal-product-price').textContent = `$${selectedProduct.price.toFixed(2)}`;
+                document.getElementById('modal-product-image').src = selectedProduct.image;
+                document.getElementById('modal-product-image').alt = selectedProduct.altText;
+                document.getElementById('product-quantity').textContent = '1';
+                document.getElementById('product-modal').classList.remove('hidden');
+            }
+        }
+
+        // Close product modal
+        function closeModal() {
+            document.getElementById('product-modal').classList.add('hidden');
+        }
+
+        // Increase quantity
+        function increaseQuantity() {
+            const quantityElement = document.getElementById('product-quantity');
+            let quantity = parseInt(quantityElement.textContent);
+            quantity++;
+            quantityElement.textContent = quantity;
+        }
+
+        // Decrease quantity
+        function decreaseQuantity() {
+            const quantityElement = document.getElementById('product-quantity');
+            let quantity = parseInt(quantityElement.textContent);
+            if (quantity > 1) {
+                quantity--;
+                quantityElement.textContent = quantity;
+            }
+        }
+
+        // Add to cart from modal
+        function addToCartModal() {
+            if (selectedProduct) {
+                const size = document.getElementById('size-select').value;
+                const quantity = parseInt(document.getElementById('product-quantity').textContent);
+                
+                addToCart(selectedProduct, quantity, size);
+                closeModal();
+            }
+        }
+
+        // Add to cart
+        function addToCart(product, quantity, size) {
+            const existingItem = cart.find(item => item.id === product.id && item.size === size);
+            
+            if (existingItem) {
+                existingItem.quantity += quantity;
+            } else {
+                cart.push({
+                    ...product,
+                    quantity,
+                    size
+                });
+            }
+            
+            updateCart();
+        }
+
+        // Update cart display
+        function updateCart() {
+            const cartItems = document.getElementById('cart-items');
+            const cartCount = document.getElementById('cart-count');
+            const cartSubtotal = document.getElementById('cart-subtotal');
+            
+            // Update count
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartCount.textContent = totalItems;
+            
+            // Update items list
+            if (cart.length === 0) {
+                cartItems.innerHTML = '<p class="text-gray-500 py-4">Your cart is empty</p>';
+                cartSubtotal.textContent = '$0.00';
+            } else {
+                cartItems.innerHTML = '';
+                let subtotal = 0;
+                
+                cart.forEach(item => {
+                    const itemTotal = item.price * item.quantity;
+                    subtotal += itemTotal;
+                    
+                    const cartItem = document.createElement('div');
+                    cartItem.className = 'flex py-2 border-b border-gray-100 last:border-0';
+                    cartItem.innerHTML = `
+                        <div class="flex-shrink-0 w-16 h-16 bg-gray-100 flex items-center justify-center rounded mr-3">
+                            <img src="${item.image}" alt="${item.altText}" class="h-12 object-contain">
+                        </div>
+                        <div class="flex-grow">
+                            <h4 class="text-sm font-medium">${item.name}</h4>
+                            <p class="text-xs text-gray-500">Size: ${item.size}, Qty: ${item.quantity}</p>
+                            <p class="text-sm font-medium">$${(item.price * item.quantity).toFixed(2)}</p>
+                        </div>
+                        <button onclick="removeFromCart(${item.id}, '${item.size}')" class="text-gray-400 hover:text-primary ml-2">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    cartItems.appendChild(cartItem);
+                });
+                
+                cartSubtotal.textContent = `$${subtotal.toFixed(2)}`;
+            }
+        }
+
+        // Remove from cart
+        function removeFromCart(productId, size) {
+            cart = cart.filter(item => !(item.id === productId && item.size === size));
+            updateCart();
+        }
+
+        // Toggle cart dropdown
+        function toggleCart() {
+            const cartDropdown = document.getElementById('cart-dropdown');
+            cartDropdown.classList.toggle('hidden');
+        }
+
+        // Close all dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('#cart-icon') && !document.getElementById('cart-dropdown').classList.contains('hidden')) {
+                document.getElementById('cart-dropdown').classList.add('hidden');
+            }
+            
+            if (!event.target.closest('#user-profile') && !document.getElementById('profile-menu').classList.contains('hidden')) {
+                document.getElementById('profile-menu').classList.add('hidden');
+            }
+        });
+
+        // Checkout
+        function checkout() {
+            if (cart.length === 0) {
+                alert('Your cart is empty. Please add items to your cart before checkout.');
+                return;
+            }
+            
+            if (!currentUser) {
+                showLoginModal();
+                return;
+            }
+            
+            // Here you would typically send the order to your backend
+            // For this demo, we'll just show a confirmation
+            
+            document.getElementById('order-confirmation-modal').classList.remove('hidden');
+            document.getElementById('cart-dropdown').classList.add('hidden');
+            
+            // Send email to owner
+            sendOrderEmail();
+            
+            // Clear cart after order
+            cart = [];
+            updateCart();
+        }
+
+        // Send order email (simulated)
+        function sendOrderEmail() {
+            // In a real application, you would make an API call to your backend service
+            // which would then send an email to the owner
+            const ownerEmail = 'kaustubhjagdale4053@gmail.com';
+            const orderDetails = cart.map(item => 
+                `${item.name} (Size: ${item.size}) x ${item.quantity} - $${(item.price * item.quantity).toFixed(2)}`
+            ).join('\n');
+            
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            
+            const emailContent = `
+                New Order Received from ${currentUser.name} (${currentUser.email})
+                
+                Order Details:
+                ${orderDetails}
+                
+                Subtotal: $${subtotal.toFixed(2)}
+                
+                Thank you for your business!
+            `;
+            
+            console.log(`Email sent to ${ownerEmail} with content:`);
+            console.log(emailContent);
+            
+            // In a real app, you would implement this using a service like EmailJS, SendGrid, etc.
+            // For example (placeholder implementation):
+            // fetch('https://your-backend-api.com/send-email', {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify({
+            //         to: ownerEmail,
+            //         subject: `New Order from ${currentUser.name}`,
+            //         text: emailContent
+            //     })
+            // });
+        }
+
+        // Send contact form message
+        function sendContactMessage(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const subject = document.getElementById('subject').value;
+            const message = document.getElementById('message').value;
+            
+            // In a real application, you would send this to your backend
+            console.log(`Message received from ${name} (${email}):`);
+            console.log(`Subject: ${subject}`);
+            console.log(`Message: ${message}`);
+            
+            alert('Thank you for your message! We will get back to you soon.');
+            document.getElementById('contact-form').reset();
+            
+            // Send email to owner
+            const ownerEmail = 'kaustubhjagdale4053@gmail.com';
+            const emailContent = `
+                New Contact Form Submission
+                
+                From: ${name} (${email})
+                Subject: ${subject}
+                
+                Message:
+                ${message}
+            `;
+            
+            console.log(`Email sent to ${ownerEmail} with content:`);
+            console.log(emailContent);
+        }
+
+        // Auth functions
+        function showLoginModal() {
+            document.getElementById('login-modal').classList.remove('hidden');
+        }
+
+        function showSignupModal() {
+            document.getElementById('signup-modal').classList.remove('hidden');
+        }
+
+        function showForgotPasswordModal() {
+            document.getElementById('login-modal').classList.add('hidden');
+            document.getElementById('forgot-password-modal').classList.remove('hidden');
+        }
+
+        function showLoginModalFromForgotPassword() {
+            document.getElementById('forgot-password-modal').classList.add('hidden');
+            document.getElementById('login-modal').classList.remove('hidden');
+        }
+
+        function showSignupModalFromLogin() {
+            document.getElementById('login-modal').classList.add('hidden');
+            document.getElementById('signup-modal').classList.remove('hidden');
+        }
+
+        function showLoginModalFromSignup() {
+            document.getElementById('signup-modal').classList.add('hidden');
+            document.getElementById('login-modal').classList.remove('hidden');
+        }
+
+        function closeModals() {
+            document.getElementById('login-modal').classList.add('hidden');
+            document.getElementById('signup-modal').classList.add('hidden');
+            document.getElementById('forgot-password-modal').classList.add('hidden');
+        }
+
+        function closeOrderModal() {
+            document.getElementById('order-confirmation-modal').classList.add('hidden');
+        }
+
+        function continueShopping() {
+            document.getElementById('order-confirmation-modal').classList.add('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function login(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            // In a real application, you would make an API call to your authentication service
+            // For this demo, we'll simulate a successful login with hardcoded values
+            
+            // Basic validation
+            if (!email || !password) {
+                alert('Please enter both email and password');
+                return;
+            }
+            
+            // Simulate authentication delay
+            setTimeout(() => {
+                currentUser = {
+                    name: "Demo User",
+                    email: email
+                };
+                
+                document.getElementById('login-form').reset();
+                closeModals();
+                checkAuthState();
+                
+                // For demo purposes, we'll just alert success
+                alert('Login successful!');
+            }, 800);
+        }
+
+        function signup(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const confirmPassword = document.getElementById('signup-confirm-password').value;
+            
+            // Validation
+            if (!name || !email || !password || !confirmPassword) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+            
+            if (password.length < 6) {
+                alert('Password must be at least 6 characters');
+                return;
+            }
+            
+            // In a real application, you would make an API call to your authentication service
+            // For this demo, we'll simulate a successful signup
+            
+            // Simulate registration delay
+            setTimeout(() => {
+                currentUser = {
+                    name: name,
+                    email: email
+                };
+                
+                document.getElementById('signup-form').reset();
+                closeModals();
+                checkAuthState();
+                
+                // For demo purposes, we'll just alert success
+                alert('Registration successful! You are now logged in.');
+                
+                // Send welcome email to owner
+                const ownerEmail = 'kaustubhjagdale4053@gmail.com';
+                const emailContent = `
+                    New User Registration
+                    
+                    Name: ${name}
+                    Email: ${email}
+                    
+                    Welcome to our platform!
+                `;
+                
+                console.log(`Email sent to ${ownerEmail} with content:`);
+                console.log(emailContent);
+            }, 1000);
+        }
+
+        function resetPassword(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('reset-email').value;
+            
+            if (!email) {
+                alert('Please enter your email');
+                return;
+            }
+            
+            // In a real application, you would make an API call to your authentication service
+            // For this demo, we'll simulate sending a reset email
+            
+            setTimeout(() => {
+                document.getElementById('forgot-password-form').reset();
+                closeModals();
+                
+                // For demo purposes, we'll just alert success
+                alert(`Password reset link has been sent to ${email}`);
+                
+                // Send notification to owner
+                const ownerEmail = 'kaustubhjagdale4053@gmail.com';
+                const emailContent = `
+                    Password Reset Request
+                    
+                    Email: ${email}
+                    
+                    A password reset link has been sent to the user.
+                `;
+                
+                console.log(`Email sent to ${ownerEmail} with content:`);
+                console.log(emailContent);
+            }, 800);
+        }
+
+        function logout() {
+            currentUser = null;
+            checkAuthState();
+            
+            // Hide profile menu
+            document.getElementById('profile-menu').classList.add('hidden');
+            
+            // For demo purposes, alert logout
+            alert('You have been logged out.');
+        }
+
+        function toggleProfileMenu() {
+            document.getElementById('profile-menu').classList.toggle('hidden');
+        }
+
+        function checkAuthState() {
+            const authButtons = document.getElementById('auth-buttons');
+            const userProfile = document.getElementById('user-profile');
+            
+            if (currentUser) {
+                authButtons.classList.add('hidden');
+                userProfile.classList.remove('hidden');
+                document.getElementById('username-display').textContent = currentUser.name;
+            } else {
+                authButtons.classList.remove('hidden');
+                userProfile.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>

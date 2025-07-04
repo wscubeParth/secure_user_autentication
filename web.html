@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Authentication System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom animations and transitions */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .auth-form {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        
+        .form-toggle {
+            transition: all 0.3s ease;
+        }
+        
+        .form-toggle:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Password strength meter styling */
+        .password-strength-bar {
+            height: 5px;
+            width: 0;
+            transition: width 0.3s ease, background-color 0.3s ease;
+        }
+        
+        /* Loading spinner */
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid #fff;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-12">
+        <!-- Hero Section -->
+        <div class="text-center mb-12">
+            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/514b8abf-3ec9-4aa8-852f-388913cc1b22.png" alt="Digital security concept with glowing lock icon and abstract security elements in blue and purple tones" class="mx-auto rounded-lg shadow-lg mb-6 w-full max-w-4xl">
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">Secure Authentication System</h1>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto">Protect your digital identity with our state-of-the-art authentication solution</p>
+        </div>
+        
+        <!-- Auth Container -->
+        <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden p-0" id="auth-container">
+            <!-- Tabs Navigation -->
+            <div class="flex border-b">
+                <button id="login-tab" class="flex-1 py-4 px-6 text-center font-medium text-gray-700 border-b-2 border-blue-500 form-toggle">Login</button>
+                <button id="register-tab" class="flex-1 py-4 px-6 text-center font-medium text-gray-500 form-toggle">Register</button>
+            </div>
+            
+            <!-- Forms Container -->
+            <div class="p-6">
+                <!-- Login Form -->
+                <form id="login-form" class="auth-form">
+                    <div class="mb-4">
+                        <label for="login-email" class="block text-gray-700 text-sm font-bold mb-2">Email Address</label>
+                        <input type="email" id="login-email" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="your@email.com" required>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label for="login-password" class="block text-gray-700 text-sm font-bold mb-2">Password</label>
+                        <div class="relative">
+                            <input type="password" id="login-password" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="••••••••" required>
+                            <button type="button" id="toggle-login-password" class="absolute right-3 top-2 text-gray-500 hover:text-gray-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="remember-me" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="remember-me" class="ml-2 block text-sm text-gray-700">Remember me</label>
+                        </div>
+                        <a href="#" class="text-sm text-blue-600 hover:text-blue-800">Forgot password?</a>
+                    </div>
+                    
+                    <button type="submit" id="login-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-150">
+                        <span id="login-text">Sign In</span>
+                        <div id="login-spinner" class="spinner mx-auto hidden"></div>
+                    </button>
+                    
+                    <div id="login-error" class="mt-4 text-sm text-red-600 hidden"></div>
+                </form>
+                
+                <!-- Registration Form -->
+                <form id="register-form" class="auth-form hidden">
+                    <div class="mb-4">
+                        <label for="register-name" class="block text-gray-700 text-sm font-bold mb-2">Full Name</label>
+                        <input type="text" id="register-name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="John Doe" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="register-email" class="block text-gray-700 text-sm font-bold mb-2">Email Address</label>
+                        <input type="email" id="register-email" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="your@email.com" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="register-password" class="block text-gray-700 text-sm font-bold mb-2">Password</label>
+                        <div class="relative">
+                            <input type="password" id="register-password" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="••••••••" required>
+                            <button type="button" id="toggle-register-password" class="absolute right-3 top-2 text-gray-500 hover:text-gray-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="mt-1 flex items-center">
+                            <div class="password-strength-bar flex-1 mr-2"></div>
+                            <span id="password-strength-text" class="text-xs text-gray-500">Weak</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label for="register-confirm-password" class="block text-gray-700 text-sm font-bold mb-2">Confirm Password</label>
+                        <input type="password" id="register-confirm-password" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="••••••••" required>
+                        <div id="password-match" class="text-xs mt-1 text-red-600 hidden">Passwords don't match</div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="terms-agreement" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" required>
+                            <label for="terms-agreement" class="ml-2 block text-sm text-gray-700">
+                                I agree to the <a href="#" class="text-blue-600 hover:text-blue-800">Terms of Service</a> and <a href="#" class="text-blue-600 hover:text-blue-800">Privacy Policy</a>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" id="register-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-150">
+                        <span id="register-text">Create Account</span>
+                        <div id="register-spinner" class="spinner mx-auto hidden"></div>
+                    </button>
+                    
+                    <div id="register-error" class="mt-4 text-sm text-red-600 hidden"></div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Protected Content (initially hidden) -->
+        <div id="protected-content" class="max-w-4xl mx-auto mt-8 hidden">
+            <div class="bg-white rounded-xl shadow-md overflow-hidden p-6">
+                <div class="flex flex-col md:flex-row items-center md:items-start">
+                    <img id="user-avatar" src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/6f2c158e-cc3a-4d97-95ce-8fa87a25715c.png" alt="User profile placeholder" class="w-24 h-24 rounded-full border-4 border-blue-100 mb-4 md:mb-0 md:mr-6">
+                    <div class="text-center md:text-left">
+                        <h2 id="user-greeting" class="text-2xl font-bold text-gray-800 mb-2">Welcome back!</h2>
+                        <p id="user-email" class="text-gray-600 mb-4">user@example.com</p>
+                        <div class="flex space-x-4 justify-center md:justify-start">
+                            <button id="logout-btn" class="text-sm bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md transition duration-150">Log Out</button>
+                            <button id="edit-profile-btn" class="text-sm bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md transition duration-150">Edit Profile</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 border-t pt-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Your Dashboard</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="p-4 bg-blue-50 rounded-lg">
+                            <div class="flex items-center mb-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <h4 class="font-medium text-gray-800">Account Status</h4>
+                            </div>
+                            <p class="text-sm text-gray-600">Verified (Premium Member)</p>
+                        </div>
+                        
+                        <div class="p-4 bg-green-50 rounded-lg">
+                            <div class="flex items-center mb-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                </svg>
+                                <h4 class="font-medium text-gray-800">Security</h4>
+                            </div>
+                            <p class="text-sm text-gray-600">Last login: Just now</p>
+                        </div>
+                        
+                        <div class="p-4 bg-purple-50 rounded-lg">
+                            <div class="flex items-center mb-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2m5-11a2 2 0 01-2 2h-2a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2v1zm-7 3a2 2 0 002-2V7a2 2 0 00-2-2H9a2 2 0 00-2 2v1a2 2 0 002 2h1z" />
+                                </svg>
+                                <h4 class="font-medium text-gray-800">Settings</h4>
+                            </div>
+                            <p class="text-sm text-gray-600">Notifications enabled</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/b404bbd5-d517-42d1-808e-2adde1d60c1f.png" alt="Analytics dashboard showing user statistics and engagement metrics" class="w-full rounded-lg shadow">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // User data management
+        class AuthService {
+            constructor() {
+                this.users = JSON.parse(localStorage.getItem('users')) || [];
+                this.currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+            }
+            
+            register(user) {
+                // Check if user already exists
+                const existingUser = this.users.find(u => u.email === user.email);
+                if (existingUser) {
+                    throw new Error('Email already registered');
+                }
+                
+                // Hash password (simplified for demo - in production use proper hashing)
+                const hashedUser = {
+                    ...user,
+                    password: this.hashPassword(user.password),
+                    id: Date.now().toString(),
+                    createdAt: new Date().toISOString()
+                };
+                
+                this.users.push(hashedUser);
+                localStorage.setItem('users', JSON.stringify(this.users));
+                
+                // Auto-login the user after registration
+                this.currentUser = { email: user.email, name: user.name };
+                localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+                
+                return hashedUser;
+            }
+            
+            login(email, password) {
+                const user = this.users.find(u => u.email === email);
+                if (!user) {
+                    throw new Error('User not found');
+                }
+                
+                // Verify password (simplified for demo - in production use proper verification)
+                if (this.hashPassword(password) !== user.password) {
+                    throw new Error('Invalid password');
+                }
+                
+                this.currentUser = { email: user.email, name: user.name };
+                localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+                
+                return this.currentUser;
+            }
+            
+            logout() {
+                this.currentUser = null;
+                localStorage.removeItem('currentUser');
+            }
+            
+            hashPassword(password) {
+                // Simplified hashing for demo - in production use proper hashing like bcrypt
+                return 'hashed_' + password;
+            }
+            
+            checkAuth() {
+                return this.currentUser !== null;
+            }
+        }
+        
+        // UI Controller
+        class AuthController {
+            constructor() {
+                this.authService = new AuthService();
+                this.initElements();
+                this.bindEvents();
+                this.checkInitialAuth();
+                
+                // Password strength meter colors
+                this.strengthMeterColors = {
+                    0: 'bg-red-500',
+                    1: 'bg-yellow-500',
+                    2: 'bg-yellow-300',
+                    3: 'bg-green-400',
+                    4: 'bg-green-500'
+                };
+                
+                this.strengthText = ['Very Weak', 'Weak', 'Moderate', 'Strong', 'Very Strong'];
+            }
+            
+            initElements() {
+                // Forms
+                this.loginForm = document.getElementById('login-form');
+                this.registerForm = document.getElementById('register-form');
+                
+                // Form Fields
+                this.loginEmail = document.getElementById('login-email');
+                this.loginPassword = document.getElementById('login-password');
+                this.registerName = document.getElementById('register-name');
+                this.registerEmail = document.getElementById('register-email');
+                this.registerPassword = document.getElementById('register-password');
+                this.registerConfirmPassword = document.getElementById('register-confirm-password');
+                
+                // Buttons
+                this.loginBtn = document.getElementById('login-btn');
+                this.registerBtn = document.getElementById('register-btn');
+                this.logoutBtn = document.getElementById('logout-btn');
+                this.editProfileBtn = document.getElementById('edit-profile-btn');
+                this.toggleLoginPassword = document.getElementById('toggle-login-password');
+                this.toggleRegisterPassword = document.getElementById('toggle-register-password');
+                this.loginTab = document.getElementById('login-tab');
+                this.registerTab = document.getElementById('register-tab');
+                
+                // UI Elements
+                this.authContainer = document.getElementById('auth-container');
+                this.protectedContent = document.getElementById('protected-content');
+                this.userGreeting = document.getElementById('user-greeting');
+                this.userEmail = document.getElementById('user-email');
+                this.userAvatar = document.getElementById('user-avatar');
+                this.loginError = document.getElementById('login-error');
+                this.registerError = document.getElementById('register-error');
+                this.passwordMatch = document.getElementById('password-match');
+                this.passwordStrengthBar = document.querySelector('.password-strength-bar');
+                this.passwordStrengthText = document.getElementById('password-strength-text');
+                
+                // Spinners
+                this.loginSpinner = document.getElementById('login-spinner');
+                this.loginText = document.getElementById('login-text');
+                this.registerSpinner = document.getElementById('register-spinner');
+                this.registerText = document.getElementById('register-text');
+            }
+            
+            bindEvents() {
+                // Form submissions
+                this.loginForm.addEventListener('submit', (e) => this.handleLogin(e));
+                this.registerForm.addEventListener('submit', (e) => this.handleRegister(e));
+                
+                // Tab switching
+                this.loginTab.addEventListener('click', () => this.switchToLogin());
+                this.registerTab.addEventListener('click', () => this.switchToRegister());
+                
+                // Logout
+                this.logoutBtn.addEventListener('click', () => this.handleLogout());
+                
+                // Password visibility toggle
+                this.toggleLoginPassword.addEventListener('click', () => this.togglePasswordVisibility(this.loginPassword));
+                this.toggleRegisterPassword.addEventListener('click', () => this.togglePasswordVisibility(this.registerPassword));
+                
+                // Password strength check
+                this.registerPassword.addEventListener('input', () => this.checkPasswordStrength());
+                
+                // Password confirmation check
+                this.registerConfirmPassword.addEventListener('input', () => this.checkPasswordMatch());
+            }
+            
+            checkInitialAuth() {
+                if (this.authService.checkAuth()) {
+                    this.showProtectedContent();
+                }
+            }
+            
+            handleLogin(e) {
+                e.preventDefault();
+                this.showLoading(this.loginBtn, this.loginText, this.loginSpinner);
+                
+                try {
+                    const email = this.loginEmail.value.trim();
+                    const password = this.loginPassword.value;
+                    
+                    if (!email || !password) {
+                        throw new Error('Please fill in all fields');
+                    }
+                    
+                    const user = this.authService.login(email, password);
+                    this.showProtectedContent();
+                    this.resetForm(this.loginForm);
+                    this.hideError(this.loginError);
+                } catch (error) {
+                    this.showError(this.loginError, error.message);
+                } finally {
+                    this.hideLoading(this.loginBtn, this.loginText, this.loginSpinner);
+                }
+            }
+            
+            handleRegister(e) {
+                e.preventDefault();
+                this.showLoading(this.registerBtn, this.registerText, this.registerSpinner);
+                
+                try {
+                    const name = this.registerName.value.trim();
+                    const email = this.registerEmail.value.trim();
+                    const password = this.registerPassword.value;
+                    const confirmPassword = this.registerConfirmPassword.value;
+                    
+                    if (!name || !email || !password || !confirmPassword) {
+                        throw new Error('Please fill in all fields');
+                    }
+                    
+                    if (password !== confirmPassword) {
+                        throw new Error('Passwords do not match');
+                    }
+                    
+                    if (!document.getElementById('terms-agreement').checked) {
+                        throw new Error('You must agree to the terms and conditions');
+                    }
+                    
+                    if (password.length < 8) {
+                        throw new Error('Password must be at least 8 characters long');
+                    }
+                    
+                    const user = this.authService.register({
+                        name,
+                        email,
+                        password
+                    });
+                    
+                    this.showProtectedContent();
+                    this.resetForm(this.registerForm);
+                    this.hideError(this.registerError);
+                } catch (error) {
+                    this.showError(this.registerError, error.message);
+                } finally {
+                    this.hideLoading(this.registerBtn, this.registerText, this.registerSpinner);
+                }
+            }
+            
+            handleLogout() {
+                this.authService.logout();
+                this.showAuthForms();
+                this.resetForm(this.loginForm);
+                this.resetForm(this.registerForm);
+                this.switchToLogin();
+            }
+            
+            showProtectedContent() {
+                const user = this.authService.currentUser;
+                this.userGreeting.textContent = `Welcome back, ${user.name || user.email.split('@')[0]}!`;
+                this.userEmail.textContent = user.email;
+                
+                // Generate avatar based on email (demo only - in production use proper avatar service)
+                const avatarUrl = `https://www.gravatar.com/avatar/${this.hashString(user.email.toLowerCase())}?s=150&d=identicon`;
+                this.userAvatar.src = avatarUrl;
+                this.userAvatar.alt = `Profile picture for ${user.name || user.email}`;
+                
+                this.authContainer.classList.add('hidden');
+                this.protectedContent.classList.remove('hidden');
+            }
+            
+            showAuthForms() {
+                this.authContainer.classList.remove('hidden');
+                this.protectedContent.classList.add('hidden');
+            }
+            
+            switchToLogin() {
+                this.loginTab.classList.add('text-gray-700', 'border-blue-500');
+                this.loginTab.classList.remove('text-gray-500');
+                this.registerTab.classList.add('text-gray-500');
+                this.registerTab.classList.remove('text-gray-700', 'border-blue-500');
+                
+                this.loginForm.classList.remove('hidden');
+                this.registerForm.classList.add('hidden');
+                
+                this.hideError(this.loginError);
+                this.hideError(this.registerError);
+            }
+            
+            switchToRegister() {
+                this.registerTab.classList.add('text-gray-700', 'border-blue-500');
+                this.registerTab.classList.remove('text-gray-500');
+                this.loginTab.classList.add('text-gray-500');
+                this.loginTab.classList.remove('text-gray-700', 'border-blue-500');
+                
+                this.registerForm.classList.remove('hidden');
+                this.loginForm.classList.add('hidden');
+                
+                this.hideError(this.loginError);
+                this.hideError(this.registerError);
+            }
+            
+            togglePasswordVisibility(passwordInput) {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+            }
+            
+            checkPasswordStrength() {
+                const password = this.registerPassword.value;
+                let strength = 0;
+                
+                // Check password length
+                if (password.length > 0) strength += 1;
+                if (password.length >= 8) strength += 1;
+                
+                // Check for lowercase letters
+                if (/[a-z]/.test(password)) strength += 0.5;
+                
+                // Check for uppercase letters
+                if (/[A-Z]/.test(password)) strength += 0.5;
+                
+                // Check for numbers
+                if (/[0-9]/.test(password)) strength += 0.5;
+                
+                // Check for special characters
+                if (/[^a-zA-Z0-9]/.test(password)) strength += 0.5;
+                
+                // Cap strength at 4
+                strength = Math.min(4, Math.max(0, Math.round(strength)));
+                
+                // Update UI
+                this.passwordStrengthBar.className = `password-strength-bar ${this.strengthMeterColors[strength]}`;
+                this.passwordStrengthBar.style.width = `${(strength / 4) * 100}%`;
+                this.passwordStrengthText.textContent = this.strengthText[strength];
+                this.passwordStrengthText.className = strength >= 3 ? 'text-xs text-green-500' : 'text-xs text-yellow-500';
+            }
+            
+            checkPasswordMatch() {
+                const password = this.registerPassword.value;
+                const confirmPassword = this.registerConfirmPassword.value;
+                
+                if (password && confirmPassword && password !== confirmPassword) {
+                    this.passwordMatch.classList.remove('hidden');
+                    return false;
+                } else {
+                    this.passwordMatch.classList.add('hidden');
+                    return true;
+                }
+            }
+            
+            showLoading(button, textElement, spinnerElement) {
+                button.disabled = true;
+                textElement.classList.add('hidden');
+                spinnerElement.classList.remove('hidden');
+            }
+            
+            hideLoading(button, textElement, spinnerElement) {
+                button.disabled = false;
+                textElement.classList.remove('hidden');
+                spinnerElement.classList.add('hidden');
+            }
+            
+            showError(errorElement, message) {
+                errorElement.textContent = message;
+                errorElement.classList.remove('hidden');
+            }
+            
+            hideError(errorElement) {
+                errorElement.textContent = '';
+                errorElement.classList.add('hidden');
+            }
+            
+            resetForm(form) {
+                form.reset();
+            }
+            
+            hashString(str) {
+                // Simple hash for demo purposes - not cryptographically secure
+                let hash = 0;
+                for (let i = 0; i < str.length; i++) {
+                    const char = str.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash = hash & hash; // Convert to 32bit integer
+                }
+                return hash.toString();
+            }
+        }
+        
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            new AuthController();
+        });
+    </script>
+</body>
+</html>
+

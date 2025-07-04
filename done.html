@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SocialApp - Connect with Friends</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --secondary: #60a5fa;
+            --accent: #93c5fd;
+            --dark: #1e293b;
+            --light: #f8fafc;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f1f5f9;
+            color: var(--dark);
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .post-image {
+            transition: opacity 0.3s ease;
+        }
+        
+        .post-image:hover {
+            opacity: 0.9;
+        }
+        
+        .like-btn {
+            transition: transform 0.2s ease, color 0.2s ease;
+        }
+        
+        .like-btn:hover {
+            color: #ef4444;
+            transform: scale(1.1);
+        }
+        
+        .comment-btn {
+            transition: transform 0.2s ease, color 0.2s ease;
+        }
+        
+        .comment-btn:hover {
+            color: var(--primary);
+            transform: scale(1.1);
+        }
+        
+        .avatar {
+            transition: transform 0.3s ease;
+        }
+        
+        .avatar:hover {
+            transform: scale(1.05);
+        }
+        
+        .tag {
+            transition: background-color 0.2s ease;
+        }
+        
+        .tag:hover {
+            background-color: var(--accent);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        /* Mobile responsive adjustments */
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .navbar-search {
+                display: none;
+            }
+            
+            .mobile-menu {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Navigation -->
+    <nav class="navbar text-white p-4 fixed w-full z-10">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-users text-2xl"></i>
+                <span class="text-xl font-bold">SocialApp</span>
+            </div>
+            
+            <div class="navbar-search hidden md:block flex-grow mx-4">
+                <div class="relative">
+                    <input type="text" placeholder="Search people, posts, tags..." class="w-full py-2 px-4 rounded-full bg-white bg-opacity-20 placeholder-white focus:outline-none focus:ring-2 focus:ring-white">
+                    <i class="fas fa-search absolute right-3 top-3 text-white"></i>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <a href="#" class="hover:text-gray-200" title="Home">
+                    <i class="fas fa-home text-xl"></i>
+                </a>
+                <a href="#" class="hover:text-gray-200" title="Messages">
+                    <i class="fas fa-envelope text-xl"></i>
+                </a>
+                <a href="#" class="hover:text-gray-200" title="Notifications">
+                    <i class="fas fa-bell text-xl"></i>
+                </a>
+                <div class="mobile-menu md:hidden">
+                    <button id="mobile-menu-button" class="text-white focus:outline-none">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+                <div class="hidden md:block">
+                    <div id="user-menu" class="relative cursor-pointer">
+                        <div class="flex items-center space-x-2">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/aa84771d-3cc9-47b5-ad91-95fa18376616.png" alt="Kaustubh Jagdale's profile picture - smiling indian male with short black hair wearing casual shirt" class="rounded-full w-8 h-8 object-cover border-2 border-white">
+                            <span class="text-white">Kaustubh</span>
+                            <i class="fas fa-chevron-down text-sm"></i>
+                        </div>
+                        <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20">
+                            <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">Profile</a>
+                            <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">Settings</a>
+                            <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-100 text-red-500">Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile menu -->
+        <div id="mobile-menu-content" class="hidden md:hidden bg-white text-gray-800 p-4">
+            <div class="mb-4">
+                <input type="text" placeholder="Search..." class="w-full py-2 px-4 rounded-full border border-gray-300">
+            </div>
+            <div class="space-y-3">
+                <a href="#" class="block py-2 px-4 rounded hover:bg-blue-50"><i class="fas fa-home mr-2"></i> Home</a>
+                <a href="#" class="block py-2 px-4 rounded hover:bg-blue-50"><i class="fas fa-user mr-2"></i> Profile</a>
+                <a href="#" class="block py-2 px-4 rounded hover:bg-blue-50"><i class="fas fa-envelope mr-2"></i> Messages</a>
+                <a href="#" class="block py-2 px-4 rounded hover:bg-blue-50"><i class="fas fa-cog mr-2"></i> Settings</a>
+                <a href="#" class="block py-2 px-4 rounded hover:bg-blue-50 text-red-500"><i class="fas fa-sign-out-alt mr-2"></i> Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto pt-16 flex">
+        <!-- Sidebar -->
+        <div class="sidebar w-64 fixed h-full bg-white shadow-md hidden md:block">
+            <div class="p-4">
+                <div class="flex items-center space-x-3 mb-6">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/9bdd0cf5-fbf1-403f-b1b6-64181a8e816d.png" alt="Kaustubh Jagdale's profile picture close-up - smiling indian male with short black hair wearing glasses" class="rounded-full w-12 h-12 object-cover border-2 border-blue-400">
+                    <div>
+                        <h3 class="font-bold">Kaustubh Jagdale</h3>
+                        <p class="text-sm text-gray-500">@kaustubhj</p>
+                    </div>
+                </div>
+                
+                <div class="space-y-1">
+                    <a href="#" class="block py-2 px-4 rounded bg-blue-50 text-blue-600 font-medium">
+                        <i class="fas fa-home mr-3"></i> Home
+                    </a>
+                    <a href="#" class="block py-2 px-4 rounded hover:bg-blue-50">
+                        <i class="fas fa-user mr-3"></i> Profile
+                    </a>
+                    <a href="#" class="block py-2 px-4 rounded hover:bg-blue-50">
+                        <i class="fas fa-users mr-3"></i> Friends
+                    </a>
+                    <a href="#" class="block py-2 px-4 rounded hover:bg-blue-50">
+                        <i class="fas fa-images mr-3"></i> Photos
+                    </a>
+                    <a href="#" class="block py-2 px-4 rounded hover:bg-blue-50">
+                        <i class="fas fa-video mr-3"></i> Videos
+                    </a>
+                    <a href="#" class="block py-2 px-4 rounded hover:bg-blue-50">
+                        <i class="fas fa-cog mr-3"></i> Settings
+                    </a>
+                </div>
+                
+                <div class="mt-8">
+                    <h4 class="font-medium px-4 mb-2">Your Shortcuts</h4>
+                    <div class="space-y-1">
+                        <a href="#" class="block py-2 px-4 rounded hover:bg-blue-50">
+                            <i class="fas fa-basketball-ball mr-3 text-orange-500"></i> Sports Group
+                        </a>
+                        <a href="#" class="block py-2 px-4 rounded hover:bg-blue-50">
+                            <i class="fas fa-music mr-3 text-purple-500"></i> Music Lovers
+                        </a>
+                        <a href="#" class="block py-2 px-4 rounded hover:bg-blue-50">
+                            <i class="fas fa-laptop-code mr-3 text-blue-500"></i> Developers Club
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content flex-grow md:ml-64 p-4">
+            <!-- Stories -->
+            <div class="bg-white rounded-xl shadow mb-6 p-4">
+                <h2 class="font-bold text-lg mb-3">Stories</h2>
+                <div class="flex space-x-2 overflow-x-auto pb-2">
+                    <div class="story flex-shrink-0 relative w-20 h-32 rounded-lg overflow-hidden cursor-pointer group">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/039eac22-f87c-4215-84c8-f1450dfcfbc8.png" alt="Golden sunset over mountains with pink clouds" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-70"></div>
+                        <div class="absolute bottom-2 left-2 right-2 text-white text-xs font-medium">
+                            <div class="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center mb-1" onclick="document.getElementById('story-media-input').click()">
+                                <i class="fas fa-plus text-xs"></i>
+                            </div>
+                            <span>Add Story</span>
+                        </div>
+                    </div>
+                    
+                    <div class="story flex-shrink-0 relative w-20 h-32 rounded-lg overflow-hidden cursor-pointer">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/16c22a09-00d3-4e01-963d-7de29e32c578.png" alt="City skyline at night with lights reflecting on water" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-70"></div>
+                        <div class="absolute bottom-2 left-2 right-2">
+                            <div class="mb-1">
+                                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/fa80a0e8-24c4-42c5-b73a-c9129b58d2f1.png" alt="Friend's profile picture - young asian woman smiling" class="w-6 h-6 rounded-full border-2 border-white">
+                            </div>
+                            <span class="text-white text-xs font-medium">Jessica</span>
+                        </div>
+                    </div>
+                    
+                    <div class="story flex-shrink-0 relative w-20 h-32 rounded-lg overflow-hidden cursor-pointer">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/fd4f0d8b-e14c-479d-8391-005bd60b5c1d.png" alt="Beach with palm trees and turquoise water" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-70"></div>
+                        <div class="absolute bottom-2 left-2 right-2">
+                            <div class="mb-1">
+                                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/0cfd3e04-06bb-4022-a691-9010e277453d.png" alt="Friend's profile picture - middle-aged male with beard" class="w-6 h-6 rounded-full border-2 border-white">
+                            </div>
+                            <span class="text-white text-xs font-medium">Michael</span>
+                        </div>
+                    </div>
+                    
+                    <div class="story flex-shrink-0 relative w-20 h-32 rounded-lg overflow-hidden cursor-pointer">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/96d1bd08-3362-4202-8aa6-b3c2990be4fb.png" alt="Group of friends laughing at a cafe" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-70"></div>
+                        <div class="absolute bottom-2 left-2 right-2">
+                            <div class="mb-1">
+                                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/fc3d5c0f-7048-4543-ae70-6140556c6804.png" alt="Friend's profile picture - young woman with curly hair" class="w-6 h-6 rounded-full border-2 border-white">
+                            </div>
+                            <span class="text-white text-xs font-medium">Sarah</span>
+                        </div>
+                    </div>
+                    
+                    <div class="story flex-shrink-0 relative w-20 h-32 rounded-lg overflow-hidden cursor-pointer">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/d4503820-0ae7-45fe-ae37-14760dfb839c.png" alt="Snowy mountain peaks under blue sky" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-70"></div>
+                        <div class="absolute bottom-2 left-2 right-2">
+                            <div class="mb-1">
+                                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/786bacb1-23ec-449a-85d9-be00e7ea8938.png" alt="Friend's profile picture - senior man with glasses" class="w-6 h-6 rounded-full border-2 border-white">
+                            </div>
+                            <span class="text-white text-xs font-medium">Robert</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Create Post -->
+            <div class="bg-white rounded-xl shadow mb-6 p-4">
+                <div class="flex items-center mb-4">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/bc8a8fff-e82e-4c27-978d-50acff270300.png" alt="Kaustubh Jagdale's profile picture thumbnail" class="rounded-full w-10 h-10 object-cover">
+                    <input type="text" placeholder="What's on your mind, Kaustubh?" class="ml-3 flex-grow p-2 rounded-full bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300" onclick="togglePostModal()">
+                </div>
+                
+                <div class="border-t pt-3 flex justify-between">
+                    <button type="button" class="flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded-lg px-4 py-2 flex-grow mr-2" onclick="document.getElementById('post-media-input').click()">
+                        <i class="fas fa-images text-green-500 mr-2"></i> Photo
+                    </button>
+                    <button type="button" class="flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded-lg px-4 py-2 flex-grow mx-2" onclick="document.getElementById('post-media-input').click()">
+                        <i class="fas fa-video text-red-500 mr-2"></i> Video
+                    </button>
+                    <button type="button" class="flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded-lg px-4 py-2 flex-grow ml-2" onclick="document.getElementById('add-tags').click()">
+                        <i class="fas fa-smile text-yellow-500 mr-2"></i> Feeling
+                    </button>
+                </div>
+            </div>
+
+            <!-- Feed -->
+            <div class="space-y-4">
+                <!-- Post 1 -->
+                <div class="bg-white rounded-xl shadow overflow-hidden fade-in">
+                    <div class="p-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/5b78523b-d4d0-41f4-839c-2e7b4912f075.png" alt="Sarah Johnson's profile picture - blonde woman smiling" class="rounded-full w-10 h-10 object-cover">
+                                <div class="ml-3">
+                                    <h4 class="font-bold">Sarah Johnson</h4>
+                                    <p class="text-xs text-gray-500">2 hrs ago · <i class="fas fa-globe-americas"></i></p>
+                                </div>
+                            </div>
+                            <button class="text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <p>Just had an amazing weekend getaway at the mountains! The views were absolutely breathtaking. 😍 #travel #mountains</p>
+                            
+                            <div class="flex flex-wrap mt-2">
+                                <span class="tag bg-blue-100 text-blue-600 text-xs px-2 py-1 rounded mr-2 mb-2 cursor-pointer">#travel</span>
+                                <span class="tag bg-blue-100 text-blue-600 text-xs px-2 py-1 rounded mr-2 mb-2 cursor-pointer">#mountains</span>
+                                <span class="tag bg-blue-100 text-blue-600 text-xs px-2 py-1 rounded mr-2 mb-2 cursor-pointer">#weekend</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3 grid grid-cols-2 gap-1">
+                            <div class="col-span-2">
+                                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/41aefe3f-2d29-4ded-9626-d56125695d1e.png" alt="Panoramic mountain view with sunrise casting golden light on peaks" class="w-full h-80 object-cover rounded-lg post-image">
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-between items-center mt-3 pt-3 border-t text-gray-500">
+                            <div class="flex items-center space-x-1">
+                                <div class="flex -space-x-1">
+                                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/9f2200e7-9005-44ff-bb85-0cc421f31613.png" alt="User who liked - young man with glasses" class="w-5 h-5 rounded-full border-2 border-white">
+                                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/c04faff8-6dcc-4dae-93a2-acafcf088ac6.png" alt="User who liked - woman with red hair" class="w-5 h-5 rounded-full border-2 border-white">
+                                </div>
+                                <span class="text-xs">48 others</span>
+                            </div>
+                            <div>
+                                <span class="text-xs">12 comments · 3 shares</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-between border-t pt-2 mt-2">
+                            <button class="like-btn flex items-center justify-center text-gray-600 hover:text-red-500 rounded-lg px-4 py-2 flex-grow">
+                                <i class="far fa-thumbs-up mr-2"></i> Like
+                            </button>
+                            <button class="comment-btn flex items-center justify-center text-gray-600 hover:text-blue-500 rounded-lg px-4 py-2 flex-grow">
+                                <i class="far fa-comment mr-2"></i> Comment
+                            </button>
+                            <button class="flex items-center justify-center text-gray-600 hover:text-green-500 rounded-lg px-4 py-2 flex-grow">
+                                <i class="fas fa-share mr-2"></i> Share
+                            </button>
+                        </div>
+                        
+                        <div class="comment-section hidden mt-3 pt-3 border-t">
+                            <div class="flex items-start mb-3">
+                                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/434535d5-d062-4294-b768-ac4e9fd44b72.png" alt="Commenter's profile - young woman with ponytail" class="rounded-full w-8 h-8 object-cover flex-shrink-0">
+                                <div class="ml-2 flex-grow">
+                                    <div class="bg-gray-100 rounded-lg p-2">
+                                        <p class="font-medium text-sm">Jessica Parker</p>
+                                        <p class="text-sm">Looks amazing! Where is this?</p>
+                                    </div>
+                                    <div class="flex items-center text-xs text-gray-500 mt-1">
+                                        <span class="mr-2">1 hr ago</span>
+                                        <button class="mr-2 hover:text-blue-500">Like</button>
+                                        <button class="hover:text-blue-500">Reply</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/3d4d578a-e109-4842-9268-308cb929f631.png" alt="Commenter's profile - bearded man smiling" class="rounded-full w-8 h-8 object-cover flex-shrink-0">
+                                <div class="ml-2 flex-grow">
+                                    <div class="bg-gray-100 rounded-lg p-2">
+                                        <p class="font-medium text-sm">Michael Brown</p>
+                                        <p class="text-sm">We should plan a trip there!</p>
+                                    </div>
+                                    <div class="flex items-center text-xs text-gray-500 mt-1">
+                                        <span class="mr-2">45 min ago</span>
+                                        <button class="mr-2 hover:text-blue-500">Like</button>
+                                        <button class="hover:text-blue-500">Reply</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center mt-3">
+                                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/9d49d564-0719-45d4-aaed-9a7e24346283.png" alt="Your profile picture thumbnail" class="rounded-full w-8 h-8 object-cover">
+                                <input type="text" placeholder="Write a comment..." class="ml-2 flex-grow p-2 rounded-full bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Post 2 -->
+                <div class="bg-white rounded-xl shadow overflow-hidden fade-in">
+                    <div class="p-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/3a320742-497f-4eb8-ac9a-bfa916147ff8.png" alt="Michael Chen's profile picture - asian male wearing glasses" class="rounded-full w-10 h-10 object-cover">
+                                <div class="ml-3">
+                                    <h4 class="font-bold">Michael Chen</h4>
+                                    <p class="text-xs text-gray-500">Yesterday · <i class="fas fa-user-friends"></i></p>
+                                </div>
+                            </div>
+                            <button class="text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <p>Check out this cool tech gadget I got! Perfect for developers and tech enthusiasts. The multi-touch interface is revolutionary. #tech #innovation #gadgets</p>
+                            
+                            <div class="flex flex-wrap mt-2">
+                                <span class="tag bg-blue-100 text-blue-600 text-xs px-2 py-1 rounded mr-2 mb-2 cursor-pointer">#tech</span>
+                                <span class="tag bg-blue-100 text-blue-600 text-xs px-2 py-1 rounded mr-2 mb-2 cursor-pointer">#innovation</span>
+                                <span class="tag bg-blue-100 text-blue-600 text-xs px-2 py-1 rounded mr-2 mb-2 cursor-pointer">#gadgets</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3 rounded-lg overflow-hidden">
+                            <video controls class="w-full">
+                                <source src="https://samplelib.com/lib/preview/mp4/sample-5s.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                        
+                        <div class="flex justify-between items-center mt-3 pt-3 border-t text-gray-500">
+                            <div class="flex items-center space-x-1">
+                                <div class="flex -space-x-1">
+                                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/a065dc50-866f-47e9-a865-32ed4fbb64a3.png" alt="User who liked - young woman smiling" class="w-5 h-5 rounded-full border-2 border-white">
+                                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/d51c1cfc-fea0-49ec-9bbb-450c696a1c9d.png" alt="User who liked - indian male with short hair" class="w-5 h-5 rounded-full border-2 border-white">
+                                </div>
+                                <span class="text-xs">32 others</span>
+                            </div>
+                            <div>
+                                <span class="text-xs">8 comments · 2 shares</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-between border-t pt-2 mt-2">
+                            <button class="like-btn flex items-center justify-center text-gray-600 hover:text-red-500 rounded-lg px-4 py-2 flex-grow">
+                                <i class="far fa-thumbs-up mr-2"></i> Like
+                            </button>
+                            <button class="comment-btn flex items-center justify-center text-gray-600 hover:text-blue-500 rounded-lg px-4 py-2 flex-grow">
+                                <i class="far fa-comment mr-2"></i> Comment
+                            </button>
+                            <button class="flex items-center justify-center text-gray-600 hover:text-green-500 rounded-lg px-4 py-2 flex-grow">
+                                <i class="fas fa-share mr-2"></i> Share
+                            </button>
+                        </div>
+                        
+                        <div class="comment-section hidden mt-3 pt-3 border-t">
+                            <div class="flex items-start mb-3">
+                                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/3528c229-10c2-4a4c-8720-02beec2cf355.png" alt="Commenter's profile - woman with glasses" class="rounded-full w-8 h-8 object-cover flex-shrink-0">
+                                <div class="ml-2 flex-grow">
+                                    <div class="bg-gray-100 rounded-lg p-2">
+                                        <p class="font-medium text-sm">Emma Wilson</p>
+                                        <p class="text-sm">Where did you get this? Need this for my work!</p>
+                                    </div>
+                                    <div class="flex items-center text-xs text-gray-500 mt-1">
+                                        <span class="mr-2">20 hrs ago</span>
+                                        <button class="mr-2 hover:text-blue-500">Like</button>
+                                        <button class="hover:text-blue-500">Reply</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center mt-3">
+                                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/581a492c-9937-43e2-9df5-9c2c232ce063.png" alt="Your profile picture thumbnail" class="rounded-full w-8 h-8 object-cover">
+                                <input type="text" placeholder="Write a comment..." class="ml-2 flex-grow p-2 rounded-full bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Post 3 -->
+                <div class="bg-white rounded-xl shadow overflow-hidden fade-in">
+                    <div class="p-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/e76bc3b4-21d9-489d-8351-1505e79f3517.png" alt="David Miller's profile picture - african american male smiling" class="rounded-full w-10 h-10 object-cover">
+                                <div class="ml-3">
+                                    <h4 class="font-bold">David Miller</h4>
+                                    <p class="text-xs text-gray-500">Mar 15 · <i class="fas fa-globe-americas"></i></p>
+                                </div>
+                            </div>
+                            <button class="text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <p>My team won the regional basketball tournament yesterday! Celebrating this victory with my amazing teammates! 🏀 #basketball #teamwork #winning</p>
+                            
+                            <div class="flex flex-wrap mt-2">
+                                <span class="tag bg-blue-100 text-blue-600 text-xs px-2 py-1 rounded mr-2 mb-2 cursor-pointer">#basketball</span>
+                                <span class="tag bg-blue-100 text-blue-600 text-xs px-2 py-1 rounded mr-2 mb-2 cursor-pointer">#teamwork</span>
+                                <span class="tag bg-blue-100 text-blue-600 text-xs px-2 py-1 rounded mr-2 mb-2 cursor-pointer">#winning</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3 grid grid-cols-3 gap-1">
+                            <div class="col-span-2 row-span-2">
+                                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/9f1f2fb2-2283-4f2c-a856-7474fc5befe7.png" alt="Basketball team celebrating with trophy - group of diverse athletes cheering" class="w-full h-full object-cover rounded-lg post-image">
+                            </div>
+                            <div>
+                                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/39e55ef6-b69b-43fe-a196-922f3254c9e1.png" alt="Close-up of basketball team captain holding trophy" class="w-full h-full object-cover rounded-lg post-image">
+                            </div>
+                            <div>
+                                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/a6a17566-c776-4dfc-b2cb-30e74e834daf.png" alt="Team members hugging in celebration" class="w-full h-full object-cover rounded-lg post-image">
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-between items-center mt-3 pt-3 border-t text-gray-500">
+                            <div class="flex items-center space-x-1">
+                                <div class="flex -space-x-1">
+                                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/54f07d28-76ab-49d7-b500-6ef438ff94e5.png" alt="User who liked - young woman with brown hair" class="w-5 h-5 rounded-full border-2 border-white">
+                                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/28ce7e75-7701-401e-8cbd-f68d9fa52cd4.png" alt="User who liked - male athlete" class="w-5 h-5 rounded-full border-2 border-white">
+                                </div>
+                                <span class="text-xs">76 others</span>
+                            </div>
+                            <div>
+                                <span class="text-xs">24 comments · 5 shares</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-between border-t pt-2 mt-2">
+                            <button class="like-btn flex items-center justify-center text-gray-600 hover:text-red-500 rounded-lg px-4 py-2 flex-grow">
+                                <i class="far fa-thumbs-up mr-2"></i> Like
+                            </button>
+                            <button class="comment-btn flex items-center justify-center text-gray-600 hover:text-blue-500 rounded-lg px-4 py-2 flex-grow">
+                                <i class="far fa-comment mr-2"></i> Comment
+                            </button>
+                            <button class="flex items-center justify-center text-gray-600 hover:text-green-500 rounded-lg px-4 py-2 flex-grow">
+                                <i class="fas fa-share mr-2"></i> Share
+                            </button>
+                        </div>
+                        
+                        <div class="comment-section hidden mt-3 pt-3 border-t">
+                            <div class="flex items-start mb-3">
+                                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/a2873809-4ef5-4222-8866-3adb7e75919f.png" alt="Commenter's profile - female cheerleader" class="rounded-full w-8 h-8 object-cover flex-shrink-0">
+                                <div class="ml-2 flex-grow">
+                                    <div class="bg-gray-100 rounded-lg p-2">
+                                        <p class="font-medium text-sm">Sophia Williams</p>
+                                        <p class="text-sm">Congratulations! You guys were amazing out there!</p>
+                                    </div>
+                                    <div class="flex items-center text-xs text-gray-500 mt-1">
+                                        <span class="mr-2">Mar 15</span>
+                                        <button class="mr-2 hover:text-blue-500">Like</button>
+                                        <button class="hover:text-blue-500">Reply</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start mb-3">
+                                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/f5312395-b0d2-487a-b670-4d1956957f65.png" alt="Commenter's profile - coach with whistle" class="rounded-full w-8 h-8 object-cover flex-shrink-0">
+                                <div class="ml-2 flex-grow">
+                                    <div class="bg-gray-100 rounded-lg p-2">
+                                        <p class="font-medium text-sm">Coach Johnson</p>
+                                        <p class="text-sm">Proud of your performance! All that hard work paid off.</p>
+                                    </div>
+                                    <div class="flex items-center text-xs text-gray-500 mt-1">
+                                        <span class="mr-2">Mar 15</span>
+                                        <button class="mr-2 hover:text-blue-500">Like</button>
+                                        <button class="hover:text-blue-500">Reply</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center mt-3">
+                                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/5a3f071a-00f4-4773-9b5f-8f9fdf0bd162.png" alt="Your profile picture thumbnail" class="rounded-full w-8 h-8 object-cover">
+                                <input type="text" placeholder="Write a comment..." class="ml-2 flex-grow p-2 rounded-full bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Sidebar -->
+        <div class="right-sidebar hidden lg:block w-80 ml-6 p-4">
+            <!-- Birthdays -->
+            <div class="bg-white rounded-xl shadow mb-6 p-4">
+                <div class="flex items-center mb-2">
+                    <i class="fas fa-birthday-cake text-blue-500 mr-2"></i>
+                    <h3 class="font-medium">Birthdays</h3>
+                </div>
+                <p class="text-sm"><span class="font-medium">Emily Rodriguez</span> and <span class="font-medium">2 others</span> have birthdays today.</p>
+            </div>
+            
+            <!-- Contacts -->
+            <div class="bg-white rounded-xl shadow mb-6 p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="font-medium">Contacts</h3>
+                    <div class="flex space-x-2">
+                        <button class="text-gray-500 hover:text-gray-700"><i class="fas fa-search"></i></button>
+                        <button class="text-gray-500 hover:text-gray-700"><i class="fas fa-ellipsis-h"></i></button>
+                    </div>
+                </div>
+                
+                <div class="space-y-2">
+                    <div class="flex items-center hover:bg-gray-100 p-1 rounded-lg cursor-pointer">
+                        <div class="relative">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/bacef26a-5a06-4079-a699-9c75f008e528.png" alt="Friend's profile - young indian woman with long hair" class="rounded-full w-10 h-10 object-cover">
+                            <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
+                        </div>
+                        <span class="ml-2">Priya Patel</span>
+                    </div>
+                    
+                    <div class="flex items-center hover:bg-gray-100 p-1 rounded-lg cursor-pointer">
+                        <div class="relative">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/5289c18e-0a2e-4be1-8ef7-21fc50155fd4.png" alt="Friend's profile - young male programmer with headphones" class="rounded-full w-10 h-10 object-cover">
+                            <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
+                        </div>
+                        <span class="ml-2">Alex Johnson</span>
+                    </div>
+                    
+                    <div class="flex items-center hover:bg-gray-100 p-1 rounded-lg cursor-pointer">
+                        <div class="relative">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/4c122b1c-222f-43eb-b875-b8f0e94ff3b6.png" alt="Friend's profile - fashion designer with glasses" class="rounded-full w-10 h-10 object-cover">
+                            <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
+                        </div>
+                        <span class="ml-2">Maria Garcia</span>
+                    </div>
+                    
+                    <div class="flex items-center hover:bg-gray-100 p-1 rounded-lg cursor-pointer">
+                        <div class="relative">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/1dbefe88-f9a1-4585-9a3e-c485a0e4e837.png" alt="Friend's profile - senior professor with beard" class="rounded-full w-10 h-10 object-cover">
+                            <span class="absolute bottom-0 right-0 w-3 h-3 bg-gray-500 rounded-full border-2 border-white"></span>
+                        </div>
+                        <span class="ml-2">Dr. Wilson</span>
+                    </div>
+                    
+                    <div class="flex items-center hover:bg-gray-100 p-1 rounded-lg cursor-pointer">
+                        <div class="relative">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/ce7f68f4-d2a0-4bd5-996a-c7719fdfb904.png" alt="Friend's profile - young woman smiling outdoors" class="rounded-full w-10 h-10 object-cover">
+                            <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
+                        </div>
+                        <span class="ml-2">Sophie Martin</span>
+                    </div>
+                    
+                    <div class="flex items-center hover:bg-gray-100 p-1 rounded-lg cursor-pointer">
+                        <div class="relative">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/fab687e7-6fe2-4529-8292-55fc99e0493a.png" alt="Friend's profile - young asian student with book" class="rounded-full w-10 h-10 object-cover">
+                            <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
+                        </div>
+                        <span class="ml-2">Kevin Zhang</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Groups -->
+            <div class="bg-white rounded-xl shadow mb-6 p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="font-medium">Group Conversations</h3>
+                    <button class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                
+                <div class="space-y-2">
+                    <div class="flex items-center hover:bg-gray-100 p-1 rounded-lg cursor-pointer">
+                        <div class="relative">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/34aaa729-c05a-46fc-be38-de921a6b0868.png" alt="Group icon - small reading club" class="rounded-full w-10 h-10 object-cover">
+                            <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
+                        </div>
+                        <span class="ml-2">Book Club</span>
+                    </div>
+                    
+                    <div class="flex items-center hover:bg-gray-100 p-1 rounded-lg cursor-pointer">
+                        <div class="relative">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/3b2f686a-b13c-446c-a4ae-f7a7327106fe.png" alt="Group icon - basketball" class="rounded-full w-10 h-10 object-cover">
+                            <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
+                        </div>
+                        <span class="ml-2">Sports Team</span>
+                    </div>
+                    
+                    <div class="flex items-center hover:bg-gray-100 p-1 rounded-lg cursor-pointer">
+                        <div class="relative">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/ff6a8abf-3217-4a5b-b19c-e4be902fb7d3.png" alt="Group icon - tech meeting" class="rounded-full w-10 h-10 object-cover">
+                            <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
+                        </div>
+                        <span class="ml-2">Tech Meetups</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Events -->
+            <div class="bg-white rounded-xl shadow mb-6 p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="font-medium">Upcoming Events</h3>
+                    <button class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                
+                <div class="space-y-3">
+                    <div class="flex items-start hover:bg-gray-100 p-1 rounded-lg cursor-pointer">
+                        <div class="bg-blue-100 text-blue-600 rounded-lg p-2 flex-shrink-0">
+                            <div class="text-center">
+                                <div class="font-bold">APR</div>
+                                <div class="text-lg font-bold">15</div>
+                            </div>
+                        </div>
+                        <div class="ml-2">
+                            <p class="font-medium text-sm">Tech Conference 2023</p>
+                            <p class="text-xs text-gray-500">10:00 AM · Virtual Event</p>
+                            <p class="text-xs text-gray-500 mt-1">12 people going</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start hover:bg-gray-100 p-1 rounded-lg cursor-pointer">
+                        <div class="bg-purple-100 text-purple-600 rounded-lg p-2 flex-shrink-0">
+                            <div class="text-center">
+                                <div class="font-bold">APR</div>
+                                <div class="text-lg font-bold">22</div>
+                            </div>
+                        </div>
+                        <div class="ml-2">
+                            <p class="font-medium text-sm">Friends Birthday Party</p>
+                            <p class="text-xs text-gray-500">7:00 PM · Dave's Place</p>
+                            <p class="text-xs text-gray-500 mt-1">8 people going</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t mt-8 py-4">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <p class="text-gray-600 text-sm">© 2023 SocialApp. All rights reserved.</p>
+                </div>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-600 hover:text-blue-500 text-sm">Terms</a>
+                    <a href="#" class="text-gray-600 hover:text-blue-500 text-sm">Privacy</a>
+                    <a href="#" class="text-gray-600 hover:text-blue-500 text-sm">Cookies</a>
+                    <a href="#" class="text-gray-600 hover:text-blue-500 text-sm">Help</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Profile Creation Modal -->
+    <div id="profile-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl p-6 w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">Complete Your Profile</h2>
+                <button id="close-profile-modal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="flex flex-col items-center mb-4">
+                <div class="relative mb-2">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/d268291e-237b-4b4c-8b16-bf0e825c8fd6.png" alt="Current profile picture - empty white square" class="rounded-full w-24 h-24 object-cover border-4 border-blue-100">
+                    <button type="button" class="absolute bottom-0 right-0 bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center" onclick="document.getElementById('profile-photo-input').click()">
+                        <i class="fas fa-camera text-sm"></i>
+                    </button>
+                </div>
+                <button class="text-blue-500 text-sm">Change profile photo</button>
+            </div>
+            
+            <form id="profile-form">
+                <div class="mb-4">
+                    <label for="full-name" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                    <input type="text" id="full-name" value="Kaustubh Jagdale" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-blue-300">
+                </div>
+                
+                <div class="mb-4">
+                    <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                    <input type="text" id="username" value="@kaustubhj" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-blue-300">
+                </div>
+                
+                <div class="mb-4">
+                    <label for="bio" class="block text-sm font-medium text-gray-700 mb-1">Bio</label>
+                    <textarea id="bio" rows="3" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-blue-300" placeholder="Tell everyone about yourself...">Software developer passionate about building meaningful products.</textarea>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Interests (Add tags)</label>
+                    <div class="flex flex-wrap gap-2 mb-2">
+                        <span class="tag bg-blue-100 text-blue-600 text-xs px-2 py-1 rounded cursor-pointer flex items-center">
+                            #coding
+                            <button class="ml-1 text-blue-600">
+                                <i class="fas fa-times text-xs"></i>
+                            </button>
+                        </span>
+                        <span class="tag bg-blue-100 text-blue-600 text-xs px-2 py-1 rounded cursor-pointer flex items-center">
+                            #technology
+                            <button class="ml-1 text-blue-600">
+                                <i class="fas fa-times text-xs"></i>
+                            </button>
+                        </span>
+                        <span class="tag bg-blue-100 text-blue-600 text-xs px-2 py-1 rounded cursor-pointer flex items-center">
+                            #travel
+                            <button class="ml-1 text-blue-600">
+                                <i class="fas fa-times text-xs"></i>
+                            </button>
+                        </span>
+                    </div>
+                    <div class="flex">
+                        <input type="text" placeholder="Add interest..." class="flex-grow p-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-300 focus:border-blue-300">
+                        <button class="bg-blue-500 text-white px-3 rounded-r-lg hover:bg-blue-600">
+                            Add
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-3">
+                    <button id="cancel-profile" type="button" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <input type="file" id="profile-photo-input" class="hidden" accept="image/*">
+    
+    <!-- Post Creation Modal -->
+    <div id="post-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl p-6 w-full max-w-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">Create Post</h2>
+                <button id="close-post-modal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="flex items-start mb-4">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/e1b82b81-8ff5-4ba3-b04d-641f2b8d4fdd.png" alt="Your profile picture thumbnail" class="rounded-full w-10 h-10 object-cover">
+                <div class="ml-2">
+                    <p class="font-medium">Kaustubh Jagdale</p>
+                    <div class="flex items-center text-xs text-gray-500">
+                        <button class="flex items-center bg-gray-100 rounded px-2 py-1">
+                            <i class="fas fa-globe-americas mr-1"></i> Public
+                            <i class="fas fa-chevron-down ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <form id="post-form">
+                <div class="mb-4">
+                    <textarea id="post-content" rows="4" class="w-full p-3 border-none focus:ring-0 text-lg resize-none" placeholder="What's on your mind, Kaustubh?"></textarea>
+                </div>
+                
+                <div id="post-preview" class="mb-4 hidden">
+                    <div class="border rounded-xl p-3 bg-gray-50">
+                        <!-- Preview content will be added here -->
+                    </div>
+                </div>
+                
+                <div class="border rounded-lg p-4 mb-4">
+                    <div class="flex justify-between mb-3">
+                        <h3 class="font-medium">Add to your post</h3>
+                        <div class="flex space-x-2">
+                            <button type="button" id="add-photo" class="p-2 text-green-500 hover:bg-green-50 rounded-lg">
+                                <i class="fas fa-images"></i>
+                            </button>
+                            <button type="button" id="add-video" class="p-2 text-red-500 hover:bg-red-50 rounded-lg">
+                                <i class="fas fa-video"></i>
+                            </button>
+                            <button type="button" id="add-feeling" class="p-2 text-yellow-500 hover:bg-yellow-50 rounded-lg">
+                                <i class="fas fa-smile"></i>
+                            </button>
+                            <button type="button" id="add-tags" class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg">
+                                <i class="fas fa-tag"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="post-tags" class="flex flex-wrap gap-2 mb-2 hidden">
+                        <!-- Tags will be added here -->
+                    </div>
+                    
+                    <input type="file" id="post-media-input" class="hidden" accept="image/*,video/*">
+    <input type="file" id="story-media-input" class="hidden" accept="image/*,video/*">
+                </div>
+                
+                <div class="flex justify-end">
+                    <button type="submit" id="post-submit" class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed" disabled>
+                        Post
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const menu = document.getElementById('mobile-menu-content');
+            menu.classList.toggle('hidden');
+        });
+
+        // User dropdown toggle
+        document.getElementById('user-menu').addEventListener('click', function() {
+            const dropdown = document.getElementById('user-dropdown');
+            dropdown.classList.toggle('hidden');
+        });
+
+        // Comment button functionality
+        const commentButtons = document.querySelectorAll('.comment-btn');
+        commentButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const commentSection = this.closest('.card').querySelector('.comment-section');
+                commentSection.classList.toggle('hidden');
+            });
+        });
+
+        // Like button functionality
+        const likeButtons = document.querySelectorAll('.like-btn');
+        likeButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const icon = this.querySelector('i');
+                if (icon.classList.contains('far')) {
+                    icon.classList.remove('far');
+                    icon.classList.add('fas', 'text-red-500');
+                    this.classList.add('text-red-500');
+                } else {
+                    icon.classList.add('far');
+                    icon.classList.remove('fas', 'text-red-500');
+                    this.classList.remove('text-red-500');
+                }
+            });
+        });
+
+        // Profile modal - would be triggered by some event in a real app
+        // For demo purposes, we'll show it automatically after 1 second
+        setTimeout(() => {
+            document.getElementById('profile-modal').classList.remove('hidden');
+        }, 1000);
+
+        // Close profile modal
+        document.getElementById('close-profile-modal').addEventListener('click', function() {
+            document.getElementById('profile-modal').classList.add('hidden');
+        });
+
+        document.getElementById('cancel-profile').addEventListener('click', function() {
+            document.getElementById('profile-modal').classList.add('hidden');
+        });
+
+        // Handle profile photo upload
+        document.getElementById('profile-photo-input').addEventListener('change', function(e) {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const profileImg = document.querySelector('#profile-modal img');
+                    profileImg.src = e.target.result;
+                    
+                    // Also update profile images in header and sidebar
+                    document.querySelectorAll('img[alt*="Kaustubh Jagdale"]').forEach(img => {
+                        img.src = e.target.result;
+                    });
+                }
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+
+        // Prevent form submission for demo
+        document.getElementById('profile-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            document.getElementById('profile-modal').classList.add('hidden');
+        });
+
+        // Post creation modal functionality
+        let isPostModalOpen = false;
+
+        function togglePostModal() {
+            const modal = document.getElementById('post-modal');
+            modal.classList.toggle('hidden');
+            isPostModalOpen = !isPostModalOpen;
+        }
+
+        // Add event listener to post creation button if it exists
+        const createPostBtn = document.querySelector('.create-post-btn');
+        if (createPostBtn) {
+            createPostBtn.addEventListener('click', togglePostModal);
+        }
+
+        document.getElementById('close-post-modal').addEventListener('click', togglePostModal);
+
+        // Handle post content changes
+        document.getElementById('post-content').addEventListener('input', function() {
+            const content = this.value.trim();
+            const submitBtn = document.getElementById('post-submit');
+            submitBtn.disabled = content === '';
+        });
+
+        // Handle tag addition
+        document.getElementById('add-tags').addEventListener('click', function() {
+            const tagsContainer = document.getElementById('post-tags');
+            tagsContainer.classList.toggle('hidden');
+            
+            if (!tagsContainer.classList.contains('hidden') && tagsContainer.innerHTML === '') {
+                // Add some demo tags
+                const demoTags = ['#travel', '#tech', '#food', '#photography', '#music'];
+                demoTags.forEach(tag => {
+                    const tagElement = document.createElement('span');
+                    tagElement.className = 'tag bg-blue-100 text-blue-600 text-xs px-2 py-1 rounded cursor-pointer';
+                    tagElement.textContent = tag;
+                    tagElement.addEventListener('click', function() {
+                        tagElement.classList.toggle('bg-blue-500');
+                        tagElement.classList.toggle('text-white');
+                    });
+                    tagsContainer.appendChild(tagElement);
+                });
+            }
+        });
+
+        // Handle media addition
+        document.getElementById('add-photo').addEventListener('click', function() {
+            document.getElementById('post-media-input').click();
+        });
+
+        document.getElementById('add-video').addEventListener('click', function() {
+            document.getElementById('post-media-input').click();
+        });
+
+        document.getElementById('post-media-input').addEventListener('change', function(e) {
+            const previewContainer = document.getElementById('post-preview');
+            previewContainer.innerHTML = '';
+            previewContainer.classList.remove('hidden');
+            
+            if (this.files && this.files[0]) {
+                const fileType = this.files[0].type.split('/')[0];
+                
+                if (fileType === 'image') {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.className = 'w-full h-auto rounded-lg';
+                        previewContainer.appendChild(img);
+                    }
+                    reader.readAsDataURL(this.files[0]);
+                } else if (fileType === 'video') {
+                    const video = document.createElement('video');
+                    video.src = URL.createObjectURL(this.files[0]);
+                    video.controls = true;
+                    video.className = 'w-full rounded-lg';
+                    previewContainer.appendChild(video);
+                }
+            }
+        });
+
+        // Prevent form submission for demo
+        document.getElementById('post-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            togglePostModal();
+            
+            // Reset form
+            this.reset();
+            document.getElementById('post-preview').classList.add('hidden');
+            document.getElementById('post-tags').classList.add('hidden').innerHTML = '';
+            document.getElementById('post-submit').disabled = true;
+            
+            // Simulate adding the new post to the feed
+            setTimeout(() => {
+                alert('Your post has been shared successfully!');
+            }, 500);
+        });
+
+        // Handle story upload
+        document.getElementById('story-media-input').addEventListener('change', function(e) {
+            if (this.files && this.files[0]) {
+                const fileType = this.files[0].type.split('/')[0];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    alert('Your story has been uploaded!');
+                }
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('#user-menu') && !document.getElementById('user-dropdown').classList.contains('hidden')) {
+                document.getElementById('user-dropdown').classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
